@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <string name="app_name">PositionDeterminer</string>
+
+    
+    <!-- Bottom Navigation -->
+    <string name="nav_federated_learning">FL</string>
+    <string name="nav_deep_learning">DL</string>
+    <string name="nav_history">History</string>
+    <string name="nav_model_info">Model Info</string>
+    
+    <!-- Common -->
+    <string name="start_prediction">Start Prediction</string>
+    <string name="collecting_data">Collecting sensor data…</string>
+    <string name="stop_collection">Stop Collection</string>
+    <string name="prediction_result">Prediction Result</string>
+    <string name="confidence">Confidence</string>
+    <string name="try_again">Try Again</string>
+    <string name="error_occurred">An error occurred</string>
+    <string name="duration">Duration</string>
+    <string name="cpu">CPU</string>
+    <string name="ram">RAM</string>
+    
+    <!-- Metrics -->
+    <string name="device_metrics">Device Metrics</string>
+    <string name="device_metrics_subtitle">Measured on mobile device</string>
+    <string name="api_metrics">API Metrics (Server)</string>
+    <string name="api_metrics_subtitle">Measured on backend server</string>
+    <string name="all_probabilities">All Probabilities</string>
+    
+    <!-- Federated Learning -->
+    <string name="fl_title">Federated Learning</string>
+    <string name="fl_subtitle">Privacy-preserving prediction</string>
+    <string name="provide_feedback">Provide Feedback</string>
+    <string name="feedback_title">Help Improve the Model</string>
+    <string name="feedback_subtitle">Your feedback will be used to improve predictions</string>
+    <string name="correct_activity">Correct Activity</string>
+    <string name="select_correct_activity">Select the correct activity</string>
+    <string name="submit_feedback">Submit Feedback</string>
+    <string name="skip">Skip</string>
+    <string name="feedback_submitted">Thank you! Your feedback has been submitted.</string>
+    
+    <!-- Deep Learning -->
+    <string name="dl_title">Deep Learning</string>
+    <string name="dl_subtitle">Traditional ML prediction</string>
+    
+    <!-- History -->
+    <string name="history_title">History</string>
+    <string name="predictions_count">%d predictions</string>
+    <string name="clear_history">Clear History</string>
+    <string name="clear_history_title">Clear History?</string>
+    <string name="clear_history_message">This will delete all %d predictions. This action cannot be undone.</string>
+    <string name="clear_fl_history_title">Clear Federated Learning History</string>
+    <string name="clear_dl_history_title">Clear Deep Learning History</string>
+    <string name="clear_fl_message">This will delete %d FL predictions. This action cannot be undone.</string>
+    <string name="clear_dl_message">This will delete %d DL predictions. This action cannot be undone.</string>
+    <string name="fl_count">Federated Learning (%d)</string>
+    <string name="dl_count">Deep Learning (%d)</string>
+    <string name="clear_all">Clear All</string>
+    <string name="cancel">Cancel</string>
+    <string name="no_history">No History Yet</string>
+    <string name="no_history_message">Start making predictions to see them here</string>
+    <string name="prediction_details">Prediction Details</string>
+    <string name="back">Back</string>
+    
+    <!-- Model Info -->
+    <string name="model_info_title">Model Information</string>
+    <string name="model_info_subtitle">Details about trained models</string>
+    <string name="dl_model">Deep Learning Model</string>
+    <string name="fl_model">Federated Learning Model</string>
+    <string name="accuracy">Accuracy</string>
+    <string name="trained_on">Trained On</string>
+    <string name="activities">Activities</string>
+    <string name="model_details">Model Details</string>
+    <string name="architecture">Architecture</string>
+    <string name="input_features">Input Features</string>
+    <string name="training_samples">Training Samples</string>
+    <string name="test_samples">Test Samples</string>
+    <string name="features">features</string>
+    <string name="samples">samples</string>
+    
+    <!-- Activities -->
+    <string name="walking">Walking</string>
+    <string name="walking_upstairs">Walking Upstairs</string>
+    <string name="walking_downstairs">Walking Downstairs</string>
+    <string name="sitting">Sitting</string>
+    <string name="standing">Standing</string>
+    <string name="laying">Laying</string>
+    
+    <!-- Settings -->
+    <string name="settings">Settings</string>
+    <string name="language">Language</string>
+    <string name="select_language">Select Language</string>
+    <string name="english">English</string>
+    <string name="turkish">Turkish</string>
+    
+    <!-- FL Screen Specific -->
+    <string name="model_ready">Model Ready</string>
+    <string name="model_required">Model Required</string>
+    <string name="pytorch_mobile_on_device">PyTorch Mobile • On-Device ML</string>
+    <string name="download_to_enable">Download to enable predictions</string>
+    <string name="downloading">Downloading…</string>
+    <string name="download_model_size">Download Model (1.8 MB)</string>
+    <string name="encrypted">Encrypted</string>
+    <string name="offline">Offline</string>
+    <string name="update_model">Update Model</string>
+    <string name="initializing_pytorch">Initializing PyTorch model…</string>
+    <string name="collecting_sensor_data">Collecting sensor data…</string>
+    <string name="making_prediction">Making prediction on-device…</string>
+    <string name="computing_gradients">Computing gradients…</string>
+    <string name="select_correct_activity_title">Select Correct Activity</string>
+    <string name="ready_to_learn">Ready to Learn</string>
+    <string name="start_prediction_help">Start prediction and help improve the model</string>
+    <string name="download_model_first">Please download the PyTorch model first</string>
+    <string name="on_device_prediction">On-Device Prediction</string>
+    <string name="is_prediction_correct">Is this prediction correct?</string>
+    <string name="correct">Correct</string>
+    <string name="wrong">Wrong</string>
+    <string name="new_prediction_skip">New Prediction (Skip Training)</string>
+    <string name="new_prediction">New Prediction</string>
+    <string name="training_complete">Training Complete!</string>
+    <string name="oops">Oops!</string>
+    <string name="update_in_progress">Update in Progress</string>
+    <string name="updating_model">Updating model…</string>
+    
+    <!-- Error Messages -->
+    <string name="error_network">Network error. Please check your connection.</string>
+    <string name="error_model_download">Failed to download model. Please try again.</string>
+    <string name="error_prediction">Prediction failed. Please try again.</string>
+    <string name="error_training">Training failed. Please try again.</string>
+    <string name="error_sensor_data">Failed to collect sensor data.</string>
+    <string name="error_unknown">An unknown error occurred.</string>
+    
+    <!-- DL Screen Specific -->
+    <string name="analyzing_patterns">Analyzing patterns…</string>
+    <string name="ready_to_predict">Ready to Predict</string>
+    <string name="tap_to_start">Tap the button to start activity recognition</string>
+    <string name="predict_again">Predict Again</string>
+    <string name="retry">Retry</string>
+    
+    <!-- Model Info Screen -->
+    <string name="loading_model_info">Loading Model Info…</string>
+    <string name="error_loading_info">Error Loading Info</string>
+    <string name="failed_to_load">Failed to load model info</string>
+    <string name="model_type">Model Type</string>
+    <string name="input_shape">Input Shape</string>
+    <string name="output_shape">Output Shape</string>
+    <string name="layers">Layers</string>
+    <string name="parameters">Parameters</string>
+    <string name="model_size">Model Size</string>
+    <string name="test_results">Test Results</string>
+    <string name="precision">Precision</string>
+    <string name="recall">Recall</string>
+    <string name="file">File</string>
+    <string name="size">Size</string>
+    <string name="input">Input</string>
+    <string name="output">Output</string>
+    <string name="activation">Activation</string>
+    <string name="overall_accuracy">Overall Accuracy</string>
+    <string name="weighted_metrics">Weighted Metrics</string>
+    <string name="model_status">Model Status</string>
+    <string name="loaded">Loaded</string>
+    <string name="not_loaded">Not Loaded</string>
+    <string name="current_round">Current Round</string>
+    <string name="pending_gradients">Pending Gradients</string>
+    <string name="learning_rate">Learning Rate</string>
+    <string name="aggregation">Aggregation</string>
+    <string name="pytorch_mobile">PyTorch</string>
+    <string name="deep_learning">DL</string>
+    <string name="federated_learning">FL</string>
+    <string name="features_unit">features</string>
+    <string name="classes_unit">classes</string>
+    <string name="devices_unit">device(s)</string>
+    <string name="active">ACTIVE</string>
+</resources>

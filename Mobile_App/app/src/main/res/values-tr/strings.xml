@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Pozisyon Belirleyici</string>
+    
+    <!-- Bottom Navigation -->
+    <string name="nav_federated_learning">FL</string>
+    <string name="nav_deep_learning">DL</string>
+    <string name="nav_history">Geçmiş</string>
+    <string name="nav_model_info">Model Bilgisi</string>
+    
+    <!-- Common -->
+    <string name="start_prediction">Tahmini Başlat</string>
+    <string name="collecting_data">Sensör verileri toplanıyor…</string>
+    <string name="stop_collection">Toplamayı Durdur</string>
+    <string name="prediction_result">Tahmin Sonucu</string>
+    <string name="confidence">Güven</string>
+    <string name="try_again">Tekrar Dene</string>
+    <string name="error_occurred">Bir hata oluştu</string>
+    <string name="duration">Süre</string>
+    <string name="cpu">İşlemci</string>
+    <string name="ram">Bellek</string>
+    
+    <!-- Metrics -->
+    <string name="device_metrics">Cihaz Metrikleri</string>
+    <string name="device_metrics_subtitle">Mobil cihazda ölçüldü</string>
+    <string name="api_metrics">API Metrikleri (Sunucu)</string>
+    <string name="api_metrics_subtitle">Arka uç sunucusunda ölçüldü</string>
+    <string name="all_probabilities">Tüm Olasılıklar</string>
+    
+    <!-- Federated Learning -->
+    <string name="fl_title">Federesyonlu Öğrenme</string>
+    <string name="fl_subtitle">Gizlilik koruyan tahmin</string>
+    <string name="provide_feedback">Geri Bildirim Ver</string>
+    <string name="feedback_title">Modeli İyileştirmeye Yardımcı Olun</string>
+    <string name="feedback_subtitle">Geri bildiriminiz tahminleri iyileştirmek için kullanılacak</string>
+    <string name="correct_activity">Doğru Aktivite</string>
+    <string name="select_correct_activity">Doğru aktiviteyi seçin</string>
+    <string name="submit_feedback">Geri Bildirimi Gönder</string>
+    <string name="skip">Atla</string>
+    <string name="feedback_submitted">Teşekkürler! Geri bildiriminiz gönderildi.</string>
+    
+    <!-- Deep Learning -->
+    <string name="dl_title">Derin Öğrenme</string>
+    <string name="dl_subtitle">Geleneksel ML tahmini</string>
+    
+    <!-- History -->
+    <string name="history_title">Geçmiş</string>
+    <string name="predictions_count">%d tahmin</string>
+    <string name="clear_history">Geçmişi Temizle</string>
+    <string name="clear_history_title">Geçmiş Temizlensin mi?</string>
+    <string name="clear_history_message">Bu işlem %d tahminin tümünü silecektir. Bu işlem geri alınamaz.</string>
+    <string name="clear_fl_history_title">Federe Öğrenme Geçmişini Temizle</string>
+    <string name="clear_dl_history_title">Derin Öğrenme Geçmişini Temizle</string>
+    <string name="clear_fl_message">Bu işlem %d FL tahminini silecektir. Bu işlem geri alınamaz.</string>
+    <string name="clear_dl_message">Bu işlem %d DL tahminini silecektir. Bu işlem geri alınamaz.</string>
+    <string name="fl_count">FL (%d)</string>
+    <string name="dl_count">DL (%d)</string>
+    <string name="clear_all">Hepsini Temizle</string>
+    <string name="cancel">İptal</string>
+    <string name="no_history">Henüz Geçmiş Yok</string>
+    <string name="no_history_message">Burada görmek için tahminler yapmaya başlayın</string>
+    <string name="prediction_details">Tahmin Detayları</string>
+    <string name="back">Geri</string>
+    
+    <!-- Model Info -->
+    <string name="model_info_title">Model Bilgisi</string>
+    <string name="model_info_subtitle">Eğitilmiş modeller hakkında detaylar</string>
+    <string name="dl_model">DL</string>
+    <string name="fl_model">FL</string>
+    <string name="accuracy">Doğruluk</string>
+    <string name="trained_on">Eğitildiği Yer</string>
+    <string name="activities">Aktiviteler</string>
+    <string name="model_details">Model Detayları</string>
+    <string name="architecture">Mimari</string>
+    <string name="input_features">Giriş Özellikleri</string>
+    <string name="training_samples">Eğitim Örnekleri</string>
+    <string name="test_samples">Test Örnekleri</string>
+    <string name="features">özellik</string>
+    <string name="samples">örnek</string>
+    
+    <!-- Activities -->
+    <string name="walking">Yürüme</string>
+    <string name="walking_upstairs">Merdiven Çıkma</string>
+    <string name="walking_downstairs">Merdiven İnme</string>
+    <string name="sitting">Oturma</string>
+    <string name="standing">Ayakta Durma</string>
+    <string name="laying">Uzanma</string>
+    
+    <!-- Settings -->
+    <string name="settings">Ayarlar</string>
+    <string name="language">Dil</string>
+    <string name="select_language">Dil Seç</string>
+    <string name="english">İngilizce</string>
+    <string name="turkish">Türkçe</string>
+    
+    <!-- FL Screen Specific -->
+    <string name="model_ready">Model Hazır</string>
+    <string name="model_required">Model Gerekli</string>
+    <string name="pytorch_mobile_on_device">PyTorch Mobile • Cihaz Üstü ML</string>
+    <string name="download_to_enable">Tahminleri etkinleştirmek için indirin</string>
+    <string name="downloading">İndiriliyor…</string>
+    <string name="download_model_size">Modeli İndir (1.8 MB)</string>
+    <string name="encrypted">Şifreli</string>
+    <string name="offline">Çevrimdışı</string>
+    <string name="update_model">Modeli Güncelle</string>
+    <string name="initializing_pytorch">PyTorch modeli başlatılıyor…</string>
+    <string name="collecting_sensor_data">Sensör verileri toplanıyor…</string>
+    <string name="making_prediction">Cihazda tahmin yapılıyor…</string>
+    <string name="computing_gradients">Gradyanlar hesaplanıyor…</string>
+    <string name="select_correct_activity_title">Doğru Aktiviteyi Seçin</string>
+    <string name="ready_to_learn">Öğrenmeye Hazır</string>
+    <string name="start_prediction_help">Tahmin başlat ve modeli iyileştirmeye yardımcı ol</string>
+    <string name="download_model_first">Lütfen önce PyTorch modelini indirin</string>
+    <string name="on_device_prediction">Cihaz Üstü Tahmin</string>
+    <string name="is_prediction_correct">Bu tahmin doğru mu?</string>
+    <string name="correct">Doğru</string>
+    <string name="wrong">Yanlış</string>
+    <string name="new_prediction_skip">Yeni Tahmin (Eğitimi Atla)</string>
+    <string name="new_prediction">Yeni Tahmin</string>
+    <string name="training_complete">Eğitim Tamamlandı!</string>
+    <string name="oops">Hata!</string>
+    <string name="update_in_progress">Güncelleme Devam Ediyor</string>
+    <string name="updating_model">Model güncelleniyor…</string>
+    
+    <!-- Error Messages -->
+    <string name="error_network">Ağ hatası. Lütfen bağlantınızı kontrol edin.</string>
+    <string name="error_model_download">Model indirme başarısız. Lütfen tekrar deneyin.</string>
+    <string name="error_prediction">Tahmin başarısız. Lütfen tekrar deneyin.</string>
+    <string name="error_training">Eğitim başarısız. Lütfen tekrar deneyin.</string>
+    <string name="error_sensor_data">Sensör verileri toplanamadı.</string>
+    <string name="error_unknown">Bilinmeyen bir hata oluştu.</string>
+    
+    <!-- DL Screen Specific -->
+    <string name="analyzing_patterns">Desenler analiz ediliyor…</string>
+    <string name="ready_to_predict">Tahmine Hazır</string>
+    <string name="tap_to_start">Aktivite tanıma başlatmak için butona dokunun</string>
+    <string name="predict_again">Tekrar Tahmin Et</string>
+    <string name="retry">Tekrar Dene</string>
+    
+    <!-- Model Info Screen -->
+    <string name="loading_model_info">Model Bilgisi Yükleniyor…</string>
+    <string name="error_loading_info">Bilgi Yükleme Hatası</string>
+    <string name="failed_to_load">Model bilgisi yüklenemedi</string>
+    <string name="model_type">Model Tipi</string>
+    <string name="input_shape">Giriş Şekli</string>
+    <string name="output_shape">Çıkış Şekli</string>
+    <string name="layers">Katmanlar</string>
+    <string name="parameters">Parametreler</string>
+    <string name="model_size">Model Boyutu</string>
+    <string name="test_results">Test Sonuçları</string>
+    <string name="precision">Precision</string>
+    <string name="recall">Recall</string>
+    <string name="file">Dosya</string>
+    <string name="size">Boyut</string>
+    <string name="input">Giriş</string>
+    <string name="output">Çıkış</string>
+    <string name="activation">Aktivasyon</string>
+    <string name="overall_accuracy">Genel Doğruluk</string>
+    <string name="weighted_metrics">Ağırlıklı Metrikler</string>
+    <string name="model_status">Model Durumu</string>
+    <string name="loaded">Yüklendi</string>
+    <string name="not_loaded">Yüklenmedi</string>
+    <string name="current_round">Mevcut Tur</string>
+    <string name="pending_gradients">Bekleyen Gradyanlar</string>
+    <string name="learning_rate">Öğrenme Oranı</string>
+    <string name="aggregation">Toplama</string>
+    <string name="pytorch_mobile">PyTorch</string>
+    <string name="deep_learning">DL</string>
+    <string name="federated_learning">FL</string>
+    <string name="features_unit">özellik</string>
+    <string name="classes_unit">sınıf</string>
+    <string name="devices_unit">cihaz</string>
+    <string name="active">AKTİF</string>
+</resources>
