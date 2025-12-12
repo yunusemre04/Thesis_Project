@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="NONE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="1a683dfa-6993-4abf-848b-8480254dd826" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/API/check_scalers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/check_uci_data.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/compare_models.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/convert_fl_to_pytorch.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/test_prediction.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/test_raw_features.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documents/FULL_FL_IMPLEMENTATION.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documents/Performance_Metrics.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documents/Performance_Results.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documents/Risk_Analysis.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documents/SWOT_Analysis.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Mobile_App/.idea/.name" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Mobile_App/.idea/AndroidProjectSystem.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Mobile_App/.idea/compiler.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Mobile_App/.idea/deploymentTargetSelector.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Mobile_App/.idea/deviceManager.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Mobile_App/.idea/gradle.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Mobile_App/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Mobile_App/.idea/migrations.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Mobile_App/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Mobile_App/.idea/runConfigurations.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Mobile_App/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Mobile_App/.kotlin/errors/errors-1761512584231.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Mobile_App/.kotlin/errors/errors-1761512585210.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Mobile_App/.kotlin/errors/errors-1761556250929.log" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 5
+}]]></component>
+  <component name="ProjectId" id="36kvKlIB6iSmzW40BdIFZavsGC4" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "last_opened_file_path": "C:/Users/Yunus Emre/Desktop/Tez/yedek/Thesis_Project"
+  }
+}]]></component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="1a683dfa-6993-4abf-848b-8480254dd826" name="Changes" comment="" />
+      <created>1765563321575</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1765563321575</updated>
+    </task>
+    <servers />
+  </component>
+</project>

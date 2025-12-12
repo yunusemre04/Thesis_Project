@@ -171,7 +171,7 @@ interface ApiInterface {
 
 // API Service Singleton
 object ApiService {
-    private const val BASE_URL = "http://10.102.190.218:5000"
+    private const val BASE_URL = "http://127.0.0.1:5000"
     
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.HEADERS // Only log headers, not body

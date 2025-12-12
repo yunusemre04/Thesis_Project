@@ -1,0 +1,294 @@
+# ================================
+# Root .gitignore for Thesis Project
+# ================================
+
+# ========== Python ==========
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# ========== Android / Gradle ==========
+# Built application files
+*.apk
+*.aar
+*.ap_
+*.aab
+
+# Files for the ART/Dalvik VM
+*.dex
+
+# Java class files
+*.class
+
+# Generated files
+bin/
+gen/
+out/
+release/
+
+# Gradle files
+.gradle/
+build/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Android Studio / IntelliJ IDEA
+.idea/
+*.iml
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/gradle.xml
+.idea/assetWizardSettings.xml
+.idea/dictionaries
+.idea/libraries
+.idea/jarRepositories.xml
+.idea/compiler.xml
+.idea/misc.xml
+.idea/.name
+.idea/caches/
+.idea/modules.xml
+.idea/navEditor.xml
+*.iws
+
+# Kotlin
+.kotlin/
+
+# Android Studio Navigation editor temp files
+.navigation/
+
+# Android Studio captures folder
+captures/
+
+# External native build folder generated in Android Studio 2.2 and later
+.externalNativeBuild/
+.cxx/
+
+# Google Services (e.g. APIs or Firebase)
+google-services.json
+
+# Freeline
+freeline.py
+freeline/
+freeline_project_description.json
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+fastlane/readme.md
+
+# Keystore files (IMPORTANT: Never commit!)
+*.jks
+*.keystore
+
+# ========== macOS ==========
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# ========== Windows ==========
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# ========== Linux ==========
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ========== IDEs ==========
+# VSCode
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+*.swp
+*.swo
+*~
+
+# Emacs
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+
+# ========== Logs ==========
+*.log
+logs/
+*.log.*
+
+# ========== Temporary files ==========
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+*.orig
+
+# ========== Model Files (Optional) ==========
+# Uncomment if you don't want to track large model files
+# *.h5
+# *.tflite
+# *.pt
+# *.pth
+# *.onnx
+# *.pkl
+# *.joblib
+
+# ========== Large Datasets ==========
+# UCI HAR Dataset is large, but kept for API evaluation
+# Uncomment if you want to exclude it
+# **/UCI_HAR_Dataset/train/Inertial Signals/*.txt
+# **/UCI_HAR_Dataset/test/Inertial Signals/*.txt
+
+# ========== Trained Models Output ==========
+# Training outputs
+training_output/
+checkpoints/
+saved_models/
+*.ckpt
+*.index
+*.meta
+*.data-*
+
+# ========== Environment Variables ==========
+.env
+.env.local
+.env.*.local
+*.env
+
+# ========== Database ==========
+*.db
+*.sqlite
+*.sqlite3
+
+# ========== Archives ==========
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# ========== Documentation ==========
+# Sphinx documentation
+docs/_build/
+site/
+
+# ========== Package Manager Locks ==========
+# Pip
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Poetry
+poetry.lock
+
+# ========== Cloud / Deployment ==========
+# AWS
+.aws/
+
+# Heroku
+.heroku/
+
+# Docker
+*.dockerignore
+docker-compose.override.yml
+
+# ========== Performance Visualizations ==========
+# Generated graphs (can be regenerated)
+*.png
+!README_assets/*.png
+
+# ========== Misc ==========
+# Certificates
+*.pem
+*.key
+*.crt
+*.cer
+
+# Configuration overrides
+config.local.py
+settings.local.py
