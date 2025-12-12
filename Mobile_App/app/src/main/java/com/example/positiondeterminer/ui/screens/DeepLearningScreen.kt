@@ -9,13 +9,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -31,6 +31,7 @@ import com.example.positiondeterminer.data.DeviceMetrics
 import com.example.positiondeterminer.ui.utils.ActivityTranslator
 import com.example.positiondeterminer.viewmodel.DeepLearningUiState
 import com.example.positiondeterminer.viewmodel.DeepLearningViewModel
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -80,14 +81,19 @@ fun DeepLearningScreen(viewModel: DeepLearningViewModel = viewModel()) {
                 )
             }
         ) { padding ->
-            Column(
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .padding(horizontal = 20.dp, vertical = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 20.dp, vertical = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
                 // Model Info Card with elevation
                 AnimatedVisibility(
                     visible = modelInfo != null,
@@ -157,7 +163,10 @@ fun DeepLearningScreen(viewModel: DeepLearningViewModel = viewModel()) {
                     }
                 }
 
-                Spacer(modifier = Modifier.weight(1f))
+                // Spacer to push content towards center for non-Success states
+                if (uiState !is DeepLearningUiState.Success) {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
                 
                 // Main Content with animations
                 AnimatedContent(
@@ -201,7 +210,11 @@ fun DeepLearningScreen(viewModel: DeepLearningViewModel = viewModel()) {
                     }
                 }
                 
-                Spacer(modifier = Modifier.weight(1f))
+                // Spacer to push content towards center for non-Success states
+                if (uiState !is DeepLearningUiState.Success) {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+                }
             }
         }
     }
@@ -285,16 +298,7 @@ private fun LoadingState(message: String, icon: androidx.compose.ui.graphics.vec
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        val infiniteTransition = rememberInfiniteTransition(label = "rotation")
-        val rotation by infiniteTransition.animateFloat(
-            initialValue = 0f,
-            targetValue = 360f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(1500, easing = LinearEasing),
-                repeatMode = RepeatMode.Restart
-            ),
-            label = "rotation"
-        )
+
         
         Box(
             modifier = Modifier
@@ -343,8 +347,7 @@ private fun SuccessState(
     
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(20.dp),
-        modifier = Modifier.verticalScroll(rememberScrollState())
+        verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         AnimatedVisibility(
             visible = visible,
@@ -394,7 +397,7 @@ private fun SuccessState(
                     MetricChip(
                         label = stringResource(R.string.confidence),
                         value = "${(confidence * 100).toInt()}%",
-                        icon = Icons.Default.TrendingUp,
+                        icon = Icons.AutoMirrored.Filled.TrendingUp,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -442,13 +445,13 @@ private fun SuccessState(
                     ) {
                         MetricChip(
                             label = stringResource(R.string.duration),
-                            value = String.format("%.2fs", deviceMetrics.duration_seconds),
+                            value = String.format(Locale.getDefault(),"%.2fs", deviceMetrics.duration_seconds),
                             icon = Icons.Default.Timer,
                             modifier = Modifier.weight(1f)
                         )
                         MetricChip(
                             label = stringResource(R.string.cpu),
-                            value = String.format("%.1f%%", deviceMetrics.cpu_usage_percent),
+                            value = String.format(Locale.getDefault(),"%.1f%%", deviceMetrics.cpu_usage_percent),
                             icon = Icons.Default.Memory,
                             modifier = Modifier.weight(1f)
                         )
@@ -462,7 +465,7 @@ private fun SuccessState(
                     ) {
                         MetricChip(
                             label = stringResource(R.string.ram),
-                            value = String.format("%.1f MB", deviceMetrics.ram_usage_mb),
+                            value = String.format(Locale.getDefault(),"%.1f MB", deviceMetrics.ram_usage_mb),
                             icon = Icons.Default.Storage,
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -513,7 +516,7 @@ private fun SuccessState(
                         ) {
                             MetricChip(
                                 label = stringResource(R.string.duration),
-                                value = String.format("%.2fs", metrics.duration_seconds),
+                                value = String.format(Locale.getDefault(),"%.2fs", metrics.duration_seconds),
                                 icon = Icons.Default.Timer,
                                 modifier = Modifier.weight(1f)
                             )
@@ -527,13 +530,13 @@ private fun SuccessState(
                         ) {
                             MetricChip(
                                 label = stringResource(R.string.cpu),
-                                value = String.format("%.1f%%", metrics.cpu_usage_percent),
+                                value = String.format(Locale.getDefault(),"%.1f%%", metrics.cpu_usage_percent),
                                 icon = Icons.Default.Memory,
                                 modifier = Modifier.weight(1f)
                             )
                             MetricChip(
                                 label = stringResource(R.string.ram),
-                                value = String.format("%.1f MB", metrics.ram_usage_mb),
+                                value = String.format(Locale.getDefault(),"%.1f MB", metrics.ram_usage_mb),
                                 icon = Icons.Default.Storage,
                                 modifier = Modifier.weight(1f)
                             )
@@ -732,7 +735,7 @@ private fun ProbabilityBar(
                 )
             }
             Text(
-                text = String.format("%.1f%%", probability),
+                text = String.format(Locale.getDefault(),"%.1f%%", probability),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold,
                 color = barColor

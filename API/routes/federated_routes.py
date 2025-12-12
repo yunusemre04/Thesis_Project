@@ -58,6 +58,11 @@ def predict():
         # Get sensor data
         sensor_data = data['sensor_data']
         
+        # Log raw input statistics
+        sensor_array = np.array(sensor_data)
+        print(f"📥 FL Input: min={sensor_array.min():.4f}, max={sensor_array.max():.4f}, mean={sensor_array.mean():.4f}")
+        print(f"   First 10 features: {sensor_array[:10]}")
+        
         # Validate input data
         is_valid, error_msg = validate_sensor_data(sensor_data, current_app.config['NUM_FEATURES'])
         if not is_valid:
@@ -66,8 +71,16 @@ def predict():
                 'error': error_msg
             }), 400
         
-        # Preprocess data (same as DL)
-        processed_data = preprocess_data(sensor_data)
+        # Get scaler for preprocessing
+        scaler = current_app.model_manager.get_fl_scaler()
+        if scaler is None:
+            print("⚠️  WARNING: FL Scaler is None!")
+        else:
+            print(f"✅ FL Scaler loaded (mean shape: {scaler.mean_.shape})")
+        
+        # Preprocess data with UCI HAR scaler (same as DL)
+        processed_data = preprocess_data(sensor_data, scaler=scaler)
+        print(f"📤 FL After preprocessing: min={processed_data.min():.4f}, max={processed_data.max():.4f}, mean={processed_data.mean():.4f}")
         
         # Validate shape
         if not validate_input_shape(processed_data, current_app.config['NUM_FEATURES']):
@@ -177,7 +190,9 @@ def update_weights():
         model = model_manager.get_fl_model()
         
         if model is not None:
-            processed_data = preprocess_data(sensor_data)
+            # Get scaler for preprocessing
+            scaler = model_manager.get_fl_scaler()
+            processed_data = preprocess_data(sensor_data, scaler=scaler)
             predictions = model.predict(processed_data, verbose=0)
             predicted_class = int(np.argmax(predictions[0]))
             confidence = float(predictions[0][predicted_class])

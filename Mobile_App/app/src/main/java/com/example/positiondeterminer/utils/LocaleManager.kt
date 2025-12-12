@@ -17,7 +17,7 @@ class LocaleManager(private val context: Context) {
     companion object {
         private val LANGUAGE_KEY = stringPreferencesKey("app_language")
         const val LANGUAGE_ENGLISH = "en"
-        const val LANGUAGE_TURKISH = "tr"
+
     }
     
     val currentLanguage: Flow<String> = context.localeDataStore.data.map { preferences ->

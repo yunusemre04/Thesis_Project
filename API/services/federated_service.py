@@ -55,9 +55,12 @@ class FederatedService:
             # Get weights BEFORE training
             weights_before = [w.copy() for w in self.model_manager.get_fl_model_weights()]
             
-            # Preprocess client data
+            # Get scaler for preprocessing
+            scaler = self.model_manager.get_fl_scaler()
+            
+            # Preprocess client data with UCI HAR scaler
             sensor_data = np.array(client_training_data['sensor_data'], dtype=np.float32)
-            processed_data = preprocess_data(sensor_data)
+            processed_data = preprocess_data(sensor_data, scaler=scaler)
             
             # Prepare label (convert to one-hot)
             true_label = int(client_training_data['true_label'])

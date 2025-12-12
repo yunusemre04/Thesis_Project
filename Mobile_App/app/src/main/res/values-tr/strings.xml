@@ -171,4 +171,17 @@
     <string name="classes_unit">sınıf</string>
     <string name="devices_unit">cihaz</string>
     <string name="active">AKTİF</string>
+    
+    <!-- Full FL Flow -->
+    <string name="local_fl_prediction">Yerel FL Tahmini</string>
+    <string name="full_fl_flow_with_metrics">Tam FL Akışı (Metriklerle)</string>
+    <string name="full_fl">Tam FL</string>
+    <string name="full_fl_flow_timing">⏱️ Tam FL Akış Zamanlaması</string>
+    <string name="complete_fl_cycle_breakdown">Tam federasyon öğrenme döngüsü dağılımı</string>
+    <string name="prediction">Tahmin</string>
+    <string name="gradients">Gradyanlar</string>
+    <string name="api_send">API Gönderimi</string>
+    <string name="model_update">Model Güncellemesi</string>
+    <string name="total_time">Toplam Süre</string>
+    <string name="gradient_norm">Gradyan Normu</string>
 </resources>

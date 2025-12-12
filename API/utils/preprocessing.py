@@ -8,11 +8,15 @@ from sklearn.preprocessing import StandardScaler
 
 def preprocess_data(data: Union[List, np.ndarray], scaler: StandardScaler = None) -> np.ndarray:
     """
-    Preprocess sensor data for model input
+    Preprocess sensor data for model input using UCI HAR StandardScaler
+    
+    CRITICAL: The scaler MUST be the one fitted on UCI HAR training data!
+    Models were trained with StandardScaler that normalizes each feature 
+    to mean=0, std=1 based on training data statistics.
     
     Args:
-        data: Raw sensor data (list or numpy array)
-        scaler: Optional pre-fitted StandardScaler for normalization
+        data: Raw sensor data (list or numpy array) - 561 UCI HAR features
+        scaler: Pre-fitted StandardScaler from training (REQUIRED for correct predictions)
     
     Returns:
         Preprocessed numpy array ready for model input
@@ -35,20 +39,16 @@ def preprocess_data(data: Union[List, np.ndarray], scaler: StandardScaler = None
     if len(data.shape) == 1:
         data = data.reshape(1, -1)
     
-    # Apply scaling if scaler is provided
+    # Apply UCI HAR StandardScaler (REQUIRED!)
     if scaler is not None:
-        try:
-            data = scaler.transform(data)
-        except Exception as e:
-            # If scaling fails, apply basic normalization
-            # UCI HAR data is typically in range [-1, 1] to [3, 3] for sensor readings
-            # Normalize to a reasonable range
-            data_mean = np.mean(data, axis=1, keepdims=True)
-            data_std = np.std(data, axis=1, keepdims=True) + 1e-8  # Avoid division by zero
-            data = (data - data_mean) / data_std
+        # Use the scaler fitted on UCI HAR training data
+        # This applies: (X - mean_train) / std_train for each feature
+        data = scaler.transform(data)
     else:
-        # No scaler provided, apply simple normalization
-        # This ensures the data is in a reasonable range for the model
+        # WARNING: Without proper scaler, predictions will be WRONG!
+        # Fallback to per-sample normalization (not ideal)
+        print("⚠️  WARNING: No scaler provided! Using fallback normalization.")
+        print("   Predictions may be incorrect without UCI HAR training statistics.")
         data_mean = np.mean(data, axis=1, keepdims=True)
         data_std = np.std(data, axis=1, keepdims=True) + 1e-8
         data = (data - data_mean) / data_std

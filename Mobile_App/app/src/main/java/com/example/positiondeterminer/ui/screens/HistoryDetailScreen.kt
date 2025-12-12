@@ -1,12 +1,14 @@
 package com.example.positiondeterminer.ui.screens
 
-import androidx.compose.animation.*
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ShowChart
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -33,11 +35,12 @@ fun HistoryDetailScreen(
     result: PredictionResult,
     onBack: () -> Unit
 ) {
-    val context = LocalContext.current
+
     val dateFormatter = remember { SimpleDateFormat("MMMM dd, yyyy 'at' HH:mm:ss", Locale.getDefault()) }
     val date = remember(result.timestamp) { Date(result.timestamp) }
     
-    val primaryColor = if (result.type == "FL")
+    val isFullFL = result.type == "Full FL"
+    val primaryColor = if (result.type == "FL" || isFullFL)
         MaterialTheme.colorScheme.tertiary
     else
         MaterialTheme.colorScheme.primary
@@ -65,7 +68,7 @@ fun HistoryDetailScreen(
                     title = { Text(stringResource(R.string.prediction_details)) },
                     navigationIcon = {
                         IconButton(onClick = onBack) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.back))
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -99,6 +102,16 @@ fun HistoryDetailScreen(
                     }
                 }
                 
+                // Full FL Flow Metrics Card (only for Full FL)
+                item {
+                    if (isFullFL && result.fullFlowMetrics != null) {
+                        FullFLMetricsCard(
+                            metrics = result.fullFlowMetrics,
+                            color = MaterialTheme.colorScheme.tertiaryContainer
+                        )
+                    }
+                }
+                
                 // API Metrics Card
                 item {
                     result.apiMetrics?.let { metrics ->
@@ -106,7 +119,7 @@ fun HistoryDetailScreen(
                             title = stringResource(R.string.api_metrics),
                             subtitle = stringResource(R.string.api_metrics_subtitle),
                             icon = Icons.Default.CloudQueue,
-                            color = if (result.type == "FL")
+                            color = if (result.type == "FL" || isFullFL)
                                 MaterialTheme.colorScheme.tertiaryContainer
                             else
                                 MaterialTheme.colorScheme.primaryContainer,
@@ -160,7 +173,7 @@ private fun HeaderCard(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = if (result.type == "FL") Icons.Default.AccountTree else Icons.Default.Psychology,
+                    imageVector = if (result.type == "FL" || result.type == "Full FL") Icons.Default.AccountTree else Icons.Default.Psychology,
                     contentDescription = null,
                     modifier = Modifier.size(40.dp),
                     tint = MaterialTheme.colorScheme.onPrimary
@@ -207,12 +220,29 @@ private fun HeaderCard(
                 shape = RoundedCornerShape(8.dp),
                 color = MaterialTheme.colorScheme.surfaceVariant
             ) {
-                Text(
-                    text = if (result.type == "FL") stringResource(R.string.fl_title) else stringResource(R.string.dl_title),
+                Row(
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Medium
-                )
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    if (result.type == "Full FL") {
+                        Icon(
+                            Icons.Default.Sync,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.tertiary
+                        )
+                    }
+                    Text(
+                        text = when (result.type) {
+                            "Full FL" -> stringResource(R.string.full_fl)
+                            "FL" -> stringResource(R.string.fl_title)
+                            else -> stringResource(R.string.dl_title)
+                        },
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
             
             // Date
@@ -289,13 +319,13 @@ private fun MetricsCard(
                     DetailMetricItem(
                         icon = Icons.Default.Timer,
                         label = stringResource(R.string.duration),
-                        value = String.format("%.2f s", metrics.duration_seconds),
+                        value = String.format(Locale.getDefault(),"%.2f s", metrics.duration_seconds),
                         modifier = Modifier.weight(1f)
                     )
                     DetailMetricItem(
                         icon = Icons.Default.Memory,
                         label = stringResource(R.string.cpu),
-                        value = String.format("%.1f%%", metrics.cpu_usage_percent),
+                        value = String.format(Locale.getDefault(),"%.1f%%", metrics.cpu_usage_percent),
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -303,7 +333,7 @@ private fun MetricsCard(
                 DetailMetricItem(
                     icon = Icons.Default.Storage,
                     label = stringResource(R.string.ram),
-                    value = String.format("%.1f MB", metrics.ram_usage_mb),
+                    value = String.format(Locale.getDefault(),"%.1f MB", metrics.ram_usage_mb),
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -364,13 +394,13 @@ private fun ApiMetricsCard(
                     DetailMetricItem(
                         icon = Icons.Default.Timer,
                         label = stringResource(R.string.duration),
-                        value = String.format("%.2f s", metrics.duration_seconds),
+                        value = String.format(Locale.getDefault(),"%.2f s", metrics.duration_seconds),
                         modifier = Modifier.weight(1f)
                     )
                     DetailMetricItem(
                         icon = Icons.Default.Memory,
                         label = stringResource(R.string.cpu),
-                        value = String.format("%.1f%%", metrics.cpu_usage_percent),
+                        value = String.format(Locale.getDefault(),"%.1f%%", metrics.cpu_usage_percent),
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -378,7 +408,7 @@ private fun ApiMetricsCard(
                 DetailMetricItem(
                     icon = Icons.Default.Storage,
                     label = stringResource(R.string.ram),
-                    value = String.format("%.1f MB", metrics.ram_usage_mb),
+                    value = String.format(Locale.getDefault(),"%.1f MB", metrics.ram_usage_mb),
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -484,7 +514,7 @@ private fun DetailProbabilityBar(
                 fontWeight = FontWeight.Medium
             )
             Text(
-                text = String.format("%.1f%%", probability),
+                text = String.format(Locale.getDefault(),"%.1f%%", probability),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold,
                 color = primaryColor
@@ -500,5 +530,176 @@ private fun DetailProbabilityBar(
             color = primaryColor,
             trackColor = MaterialTheme.colorScheme.surfaceVariant
         )
+    }
+}
+
+@Composable
+private fun FullFLMetricsCard(
+    metrics: com.example.positiondeterminer.data.FullFlowMetrics,
+    color: Color
+) {
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.elevatedCardColors(containerColor = color),
+        shape = RoundedCornerShape(20.dp)
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Icon(
+                    Icons.Default.Speed,
+                    contentDescription = null,
+                    modifier = Modifier.size(28.dp),
+                    tint = MaterialTheme.colorScheme.tertiary
+                )
+                Text(
+                    text = stringResource(R.string.full_fl_flow_timing),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            
+            Text(
+                text = stringResource(R.string.complete_fl_cycle_breakdown),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+            
+            Spacer(modifier = Modifier.height(20.dp))
+            
+            // Timing metrics grid
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    TimingMetricItem(
+                        label = stringResource(R.string.prediction),
+                        value = "${metrics.prediction_time_ms}ms",
+                        icon = Icons.Default.Psychology,
+                        modifier = Modifier.weight(1f)
+                    )
+                    TimingMetricItem(
+                        label = stringResource(R.string.gradients),
+                        value = "${metrics.gradient_calc_time_ms}ms",
+                        icon = Icons.Default.Calculate,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    TimingMetricItem(
+                        label = stringResource(R.string.api_send),
+                        value = "${metrics.api_send_time_ms}ms",
+                        icon = Icons.Default.CloudUpload,
+                        modifier = Modifier.weight(1f)
+                    )
+                    TimingMetricItem(
+                        label = stringResource(R.string.model_update),
+                        value = "${metrics.model_update_time_ms}ms",
+                        icon = Icons.Default.Update,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                
+                TimingMetricItem(
+                    label = stringResource(R.string.total_time),
+                    value = "${metrics.total_time_ms}ms",
+                    icon = Icons.Default.Timer,
+                    modifier = Modifier.fillMaxWidth(),
+                    isTotal = true
+                )
+                
+                metrics.gradient_norm?.let { norm ->
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ShowChart,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                                tint = MaterialTheme.colorScheme.tertiary
+                            )
+                            Column {
+                                Text(
+                                    text = stringResource(R.string.gradient_norm),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Text(
+                                    text = String.format(Locale.getDefault(), "%.4f", norm),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.tertiary
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TimingMetricItem(
+    label: String,
+    value: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    modifier: Modifier = Modifier,
+    isTotal: Boolean = false
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(12.dp),
+        color = if (isTotal) 
+            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.15f)
+        else 
+            MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
+    ) {
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                icon,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+                tint = if (isTotal) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Column {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = if (isTotal) FontWeight.Bold else FontWeight.Medium,
+                    color = if (isTotal) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
     }
 }

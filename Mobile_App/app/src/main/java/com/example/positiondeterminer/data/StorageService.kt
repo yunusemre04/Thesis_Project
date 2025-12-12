@@ -18,16 +18,29 @@ data class PredictionResult(
     val activity: String,
     val confidence: Double,
     val timestamp: Long,
-    val type: String, // "DL" or "FL"
+    val type: String, // "DL", "FL", or "Full FL"
     val deviceMetrics: DeviceMetrics?,
     val apiMetrics: ApiMetrics? = null,
-    val allProbabilities: Map<String, Double>? = null
+    val allProbabilities: Map<String, Double>? = null,
+    val fullFlowMetrics: FullFlowMetrics? = null // NEW: Complete FL flow metrics
 )
 
 data class DeviceMetrics(
     val cpu_usage_percent: Double,
     val ram_usage_mb: Double,
     val duration_seconds: Double
+)
+
+// NEW: Comprehensive FL flow metrics
+data class FullFlowMetrics(
+    val prediction_time_ms: Long,
+    val gradient_calc_time_ms: Long,
+    val api_send_time_ms: Long,
+    val api_aggregation_time_ms: Long,
+    val model_update_time_ms: Long,
+    val total_time_ms: Long,
+    val gradient_norm: Double? = null,
+    val aggregation_method: String? = null
 )
 
 class StorageService(private val context: Context) {
@@ -73,7 +86,14 @@ class StorageService(private val context: Context) {
             val history: MutableList<PredictionResult> = gson.fromJson(currentHistoryJson, listType)
             
             // Remove all results matching the specified type
-            history.removeAll { it.type == type }
+            // For FL type, also remove "Full FL" entries
+            history.removeAll { 
+                if (type == "FL") {
+                    it.type == "FL" || it.type == "Full FL"
+                } else {
+                    it.type == type
+                }
+            }
             
             preferences[HISTORY_KEY] = gson.toJson(history)
         }

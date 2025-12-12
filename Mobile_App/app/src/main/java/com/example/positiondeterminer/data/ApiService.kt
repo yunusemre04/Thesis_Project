@@ -8,12 +8,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import java.util.concurrent.TimeUnit
 
-// API Response Models
-data class ApiResponse<T>(
-    val success: Boolean,
-    val data: T? = null,
-    val error: String? = null
-)
+
 
 data class PredictionApiResponse(
     val success: Boolean,
@@ -35,12 +30,7 @@ data class ApiMetrics(
     val duration_seconds: Double
 )
 
-data class PredictionResponse(
-    val prediction: Int,
-    val confidence: Double,
-    val probabilities: List<Double>,
-    val activity: String
-)
+
 
 data class ModelInfoApiResponse(
     val success: Boolean,
@@ -119,30 +109,35 @@ data class PredictRequest(
     val sensor_data: List<Double>
 )
 
-data class UpdateWeightsRequest(
-    val sensor_data: List<Double>,
-    val true_label: Int,
-    val activity_name: String? = null
-)
 
-// NEW: Request for sending only gradients (true FL)
+
 data class FLGradientsRequest(
     val gradients: List<Float>,
     val activity_name: String,
     val device_id: String
 )
 
+data class GradientAggregationInfo(
+    val gradient_norm: Double,
+    val gradient_min: Double,
+    val gradient_max: Double,
+    val gradient_mean: Double,
+    val privacy_preserved: Boolean,
+    val raw_data_transmitted: Boolean
+)
+
 data class UpdateWeightsResponse(
     val success: Boolean,
     val message: String,
-    val gradients_applied: Boolean
+    val gradients_applied: Boolean? = null,
+    val pending_aggregation: Int? = null,
+    val aggregation_info: GradientAggregationInfo? = null,
+    val fl_round: Int? = null,
+    val auto_aggregated: Boolean? = null
 )
 
 // API Interface
 interface ApiInterface {
-    @GET("api/health")
-    suspend fun healthCheck(): Response<Map<String, Any>>
-    
     @POST("api/dl/predict")
     suspend fun dlPredict(@Body request: PredictRequest): Response<PredictionApiResponse>
     
@@ -152,13 +147,7 @@ interface ApiInterface {
     @GET("api/dl/evaluate")
     suspend fun dlEvaluate(): Response<EvaluationApiResponse>
     
-    @POST("api/fl/predict")
-    suspend fun flPredict(@Body request: PredictRequest): Response<PredictionApiResponse>
-    
-    @POST("api/fl/update_weights")
-    suspend fun flUpdateWeights(@Body request: UpdateWeightsRequest): Response<UpdateWeightsResponse>
-    
-    // NEW: Send only gradients (true FL)
+
     @POST("api/fl/update_weights_gradients")
     suspend fun flUpdateWeightsWithGradients(@Body request: FLGradientsRequest): Response<UpdateWeightsResponse>
     
@@ -182,7 +171,7 @@ interface ApiInterface {
 
 // API Service Singleton
 object ApiService {
-    private const val BASE_URL = "http://10.33.248.218:5000/"
+    private const val BASE_URL = "http://10.102.190.218:5000"
     
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.HEADERS // Only log headers, not body

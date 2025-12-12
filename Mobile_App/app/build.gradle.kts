@@ -29,15 +29,7 @@ android {
         }
     }
     
-    // Split APKs by ABI to reduce size
-    splits {
-        abi {
-            isEnable = true
-            reset()
-            include("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
-            isUniversalApk = false
-        }
-    }
+    // Disabled splits - building universal APK for all devices
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -52,9 +44,21 @@ android {
     packaging {
         jniLibs {
             useLegacyPackaging = true
+            // Prevent duplicate library conflicts
+            pickFirsts += listOf(
+                "lib/armeabi-v7a/libc++_shared.so",
+                "lib/arm64-v8a/libc++_shared.so",
+                "lib/x86/libc++_shared.so",
+                "lib/x86_64/libc++_shared.so"
+            )
         }
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += setOf(
+                "/META-INF/{AL2.0,LGPL2.1}",
+                "/META-INF/*.kotlin_module",
+                "**/*.txt",
+                "**/*.properties"
+            )
         }
     }
 }

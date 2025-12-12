@@ -1,0 +1,17 @@
+DL Training Duration
+
+20 Iteration 
+
+DL 25 seconds:94.33, FL : 3 minute 8 seconds 89.58
+
+10 Iteration 
+
+DL 17 seconds:92.16 ,FL :1 minutes 35 seconds :81.71
+
+5 Iteration
+
+DL 14 seconds : 92.64 , FL: 54 seconds :66.03
+
+3 Iteration 
+
+DL :12 seconds :90.33 ,FL : 32 seconds :50.49

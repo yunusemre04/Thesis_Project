@@ -16,6 +16,10 @@ class Config:
     DL_MODEL_PATH = os.path.join(MODELS_DIR, 'deep_learning_model.h5')
     FL_MODEL_PATH = os.path.join(MODELS_DIR, 'federated_learning_model.h5')
     
+    # Scaler paths (fitted on UCI HAR training data)
+    DL_SCALER_PATH = os.path.join(MODELS_DIR, 'scaler_dl.pkl')
+    FL_SCALER_PATH = os.path.join(MODELS_DIR, 'scaler_fl.pkl')
+    
     # Dataset path for evaluation
     DATASET_DIR = os.path.join(BASE_DIR, 'UCI_HAR_Dataset')
     

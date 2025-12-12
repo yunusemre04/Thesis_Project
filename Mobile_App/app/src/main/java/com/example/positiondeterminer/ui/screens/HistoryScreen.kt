@@ -5,7 +5,6 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -43,9 +42,9 @@ fun HistoryScreen(
     // Filter history based on selected tab (0 = FL, 1 = DL)
     val filteredHistory = remember(history, selectedTabIndex) {
         when (selectedTabIndex) {
-            0 -> history.filter { it.type == "FL" }
+            0 -> history.filter { it.type == "FL" || it.type == "Full FL" } // Include both FL types
             1 -> history.filter { it.type == "DL" }
-            else -> history.filter { it.type == "FL" }
+            else -> history.filter { it.type == "FL" || it.type == "Full FL" }
         }
     }
     
@@ -134,7 +133,7 @@ fun HistoryScreen(
                                         contentDescription = null,
                                         modifier = Modifier.size(18.dp)
                                     )
-                                    Text(stringResource(R.string.fl_count, history.count { it.type == "FL" }))
+                                    Text(stringResource(R.string.fl_count, history.count { it.type == "FL" || it.type == "Full FL" }))
                                 }
                             }
                         )
@@ -304,12 +303,14 @@ private fun ModernHistoryCard(
     val dateFormatter = remember { SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault()) }
     val date = remember(result.timestamp) { Date(result.timestamp) }
     
-    val cardColor = if (result.type == "FL")
+    val isFullFL = result.type == "Full FL"
+    
+    val cardColor = if (result.type == "FL" || isFullFL)
         MaterialTheme.colorScheme.tertiaryContainer
     else
         MaterialTheme.colorScheme.primaryContainer
     
-    val iconColor = if (result.type == "FL")
+    val iconColor = if (result.type == "FL" || isFullFL)
         MaterialTheme.colorScheme.tertiary
     else
         MaterialTheme.colorScheme.primary
@@ -336,7 +337,7 @@ private fun ModernHistoryCard(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = if (result.type == "FL") Icons.Default.AccountTree else Icons.Default.Psychology,
+                    imageVector = if (result.type == "FL" || isFullFL) Icons.Default.AccountTree else Icons.Default.Psychology,
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
                     tint = iconColor
@@ -351,11 +352,40 @@ private fun ModernHistoryCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = ActivityTranslator.translate(result.activity, context),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Column {
+                        Text(
+                            text = ActivityTranslator.translate(result.activity, context),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+                        // Show Full FL badge
+                        if (isFullFL) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Surface(
+                                shape = RoundedCornerShape(6.dp),
+                                color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f)
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Default.Sync,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(12.dp),
+                                        tint = MaterialTheme.colorScheme.tertiary
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.full_fl),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.tertiary
+                                    )
+                                }
+                            }
+                        }
+                    }
                     Surface(
                         shape = RoundedCornerShape(8.dp),
                         color = iconColor.copy(alpha = 0.2f)

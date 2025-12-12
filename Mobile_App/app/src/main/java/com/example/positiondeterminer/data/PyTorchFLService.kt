@@ -30,7 +30,7 @@ class PyTorchFLService(private val context: Context) {
         
         // Model parameters
         private const val INPUT_SIZE = 561 // HAR dataset feature count
-        private const val NUM_CLASSES = 6 // Number of activity classes
+
     }
     
     /**
@@ -81,20 +81,7 @@ class PyTorchFLService(private val context: Context) {
         }
     }
     
-    /**
-     * Download PyTorch model - First time: copy from assets; Updates: download from server
-     */
-    suspend fun downloadModel(): Boolean = withContext(Dispatchers.IO) {
-        // First try to copy from assets (bundled with APK)
-        if (copyModelFromAssets()) {
-            return@withContext loadModel()
-        }
-        
-        // If assets copy fails, show error
-        Log.e(TAG, "Model not found in assets")
-        return@withContext false
-    }
-    
+
     /**
      * Download updated model from server (for federated learning updates)
      * This allows users to get the latest model with improvements from other devices
@@ -170,13 +157,19 @@ class PyTorchFLService(private val context: Context) {
     
     /**
      * Load PyTorch model from local storage
+     * If model doesn't exist in storage, try to copy from assets first
      */
     suspend fun loadModel(): Boolean = withContext(Dispatchers.IO) {
         try {
             val modelFile = File(context.filesDir, MODEL_NAME)
+            
+            // If model doesn't exist in internal storage, try to copy from assets
             if (!modelFile.exists()) {
-                Log.e(TAG, "Model file not found: ${modelFile.absolutePath}")
-                return@withContext false
+                Log.d(TAG, "Model not found in storage, trying to copy from assets...")
+                if (!copyModelFromAssets()) {
+                    Log.e(TAG, "Model file not found: ${modelFile.absolutePath}")
+                    return@withContext false
+                }
             }
             
             Log.d(TAG, "Loading PyTorch model from: ${modelFile.absolutePath}")
@@ -323,57 +316,7 @@ class PyTorchFLService(private val context: Context) {
             null
         }
     }
-    
-    /**
-     * Get current model weights for federated aggregation
-     * Only weights are sent to server (not raw data!)
-     */
-    suspend fun getModelWeights(): Map<String, FloatArray>? = withContext(Dispatchers.IO) {
-        try {
-            if (!isModelLoaded || model == null) {
-                return@withContext null
-            }
-            
-            Log.d(TAG, "Extracting model weights...")
-            
-            // Note: PyTorch Mobile has limited weight extraction APIs
-            // For full FL, you'd need to implement custom weight serialization
-            // This is a placeholder that shows the concept
-            
-            // In production, you would:
-            // 1. Extract all layer weights
-            // 2. Serialize them
-            // 3. Send only weights to server
-            
-            Log.w(TAG, "Weight extraction requires custom implementation")
-            null
-        } catch (e: Exception) {
-            Log.e(TAG, "Weight extraction failed", e)
-            null
-        }
-    }
-    
-    /**
-     * Update model with new weights from server (after aggregation)
-     */
-    suspend fun updateModelWeights(weights: Map<String, FloatArray>): Boolean = withContext(Dispatchers.IO) {
-        try {
-            if (!isModelLoaded || model == null) {
-                return@withContext false
-            }
-            
-            Log.d(TAG, "Updating model with aggregated weights...")
-            
-            // Note: PyTorch Mobile has limited weight update APIs
-            // For full FL, you'd need to download updated model from server
-            
-            Log.w(TAG, "Weight update requires downloading new model")
-            false
-        } catch (e: Exception) {
-            Log.e(TAG, "Weight update failed", e)
-            false
-        }
-    }
+
     
     /**
      * Apply softmax activation to convert logits to probabilities
@@ -384,14 +327,7 @@ class PyTorchFLService(private val context: Context) {
         val sumExps = exps.sum()
         return exps.map { it / sumExps }.toFloatArray()
     }
-    
-    /**
-     * Clean up resources
-     */
-    fun cleanup() {
-        model = null
-        isModelLoaded = false
-    }
+
 }
 
 /**

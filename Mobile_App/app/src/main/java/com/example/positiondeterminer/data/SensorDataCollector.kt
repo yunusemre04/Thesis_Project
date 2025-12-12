@@ -15,8 +15,7 @@ class SensorDataCollector(context: Context) {
     private val gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
     
     companion object {
-        const val SAMPLE_RATE_HZ = 50 // 50 Hz like UCI HAR dataset
-        const val WINDOW_SIZE = 128 // 128 samples per window
+
         const val COLLECTION_DURATION_MS = 2560 // 2.56 seconds
         const val UPDATE_INTERVAL_US = 20000 // 20ms = 50Hz (1000000/50)
     }
@@ -46,11 +45,12 @@ class SensorDataCollector(context: Context) {
                     }
                     
                     // Only add reading when we have both sensor types
+                    // CRITICAL FIX: Create NEW Triple objects to avoid reference reuse
                     if (accelData != null && gyroData != null) {
                         readings.add(
                             SensorReading(
-                                accelerometer = accelData!!,
-                                gyroscope = gyroData!!,
+                                accelerometer = Triple(accelData.first, accelData.second, accelData.third),
+                                gyroscope = Triple(gyroData.first, gyroData.second, gyroData.third),
                                 timestamp = System.currentTimeMillis()
                             )
                         )
@@ -83,40 +83,31 @@ class SensorDataCollector(context: Context) {
     
     /**
      * Process sensor readings into the format expected by the ML model
-     * Returns a flat array of 561 features
+     * Returns a flat array of 561 UCI HAR compatible features
      */
     fun processReadingsToFeatures(readings: List<SensorReading>): List<Double> {
-        if (readings.isEmpty()) return List(561) { 0.0 }
+        android.util.Log.d("SensorDataCollector", "🔄 Processing ${readings.size} readings to features")
         
-        // Extract accelerometer and gyroscope data
-        val accelX = readings.map { it.accelerometer.first.toDouble() }
-        val accelY = readings.map { it.accelerometer.second.toDouble() }
-        val accelZ = readings.map { it.accelerometer.third.toDouble() }
-        val gyroX = readings.map { it.gyroscope.first.toDouble() }
-        val gyroY = readings.map { it.gyroscope.second.toDouble() }
-        val gyroZ = readings.map { it.gyroscope.third.toDouble() }
-        
-        // Simple feature extraction (mean, std, min, max for each axis)
-        val features = mutableListOf<Double>()
-        
-        listOf(accelX, accelY, accelZ, gyroX, gyroY, gyroZ).forEach { data ->
-            features.add(data.average()) // mean
-            features.add(calculateStd(data)) // std
-            features.add(data.minOrNull() ?: 0.0) // min
-            features.add(data.maxOrNull() ?: 0.0) // max
+        if (readings.isEmpty()) {
+            android.util.Log.w("SensorDataCollector", "⚠️ No readings to process!")
+            return List(561) { 0.0 }
         }
         
-        // Pad to 561 features if necessary
-        while (features.size < 561) {
-            features.add(0.0)
+        // Log sample of readings
+        if (readings.isNotEmpty()) {
+            val first = readings.first()
+            val last = readings.last()
+            android.util.Log.d("SensorDataCollector", "  First reading - Accel: ${first.accelerometer}, Gyro: ${first.gyroscope}")
+            android.util.Log.d("SensorDataCollector", "  Last reading - Accel: ${last.accelerometer}, Gyro: ${last.gyroscope}")
         }
+
+        // Use proper UCI HAR feature extraction
+        val extractor = FeatureExtractor()
+        val features = extractor.extractFeatures(readings)
         
-        return features.take(561)
+        android.util.Log.d("SensorDataCollector", "✅ Generated ${features.size} features")
+        return features
     }
     
-    private fun calculateStd(data: List<Double>): Double {
-        val mean = data.average()
-        val variance = data.map { (it - mean) * (it - mean) }.average()
-        return kotlin.math.sqrt(variance)
-    }
+   
 }

@@ -14,11 +14,14 @@ class ModelManager:
         self.config = config
         self._dl_model = None
         self._fl_model = None
+        self._dl_scaler = None  # NEW: StandardScaler for DL
+        self._fl_scaler = None  # NEW: StandardScaler for FL
         self._models_loaded = False
     
     def load_models(self):
         """Load both deep learning and federated learning models"""
         try:
+            import joblib
             print("Loading models...")
             
             # Load Deep Learning model
@@ -34,6 +37,13 @@ class ModelManager:
             else:
                 print(f"⚠ Deep Learning model not found at {self.config['DL_MODEL_PATH']}")
             
+            # Load DL Scaler (UCI HAR training statistics)
+            if os.path.exists(self.config['DL_SCALER_PATH']):
+                self._dl_scaler = joblib.load(self.config['DL_SCALER_PATH'])
+                print(f"✓ DL Scaler loaded from {self.config['DL_SCALER_PATH']}")
+            else:
+                print(f"⚠ DL Scaler not found at {self.config['DL_SCALER_PATH']}")
+            
             # Load Federated Learning model
             if os.path.exists(self.config['FL_MODEL_PATH']):
                 self._fl_model = tf.keras.models.load_model(self.config['FL_MODEL_PATH'])
@@ -46,6 +56,13 @@ class ModelManager:
                 print(f"✓ Federated Learning model loaded from {self.config['FL_MODEL_PATH']}")
             else:
                 print(f"⚠ Federated Learning model not found at {self.config['FL_MODEL_PATH']}")
+            
+            # Load FL Scaler (UCI HAR training statistics)
+            if os.path.exists(self.config['FL_SCALER_PATH']):
+                self._fl_scaler = joblib.load(self.config['FL_SCALER_PATH'])
+                print(f"✓ FL Scaler loaded from {self.config['FL_SCALER_PATH']}")
+            else:
+                print(f"⚠ FL Scaler not found at {self.config['FL_SCALER_PATH']}")
             
             self._models_loaded = True
             print("Models loaded successfully!")
@@ -65,6 +82,18 @@ class ModelManager:
         if not self._models_loaded:
             self.load_models()
         return self._fl_model
+    
+    def get_dl_scaler(self):
+        """Get the deep learning scaler"""
+        if not self._models_loaded:
+            self.load_models()
+        return self._dl_scaler
+    
+    def get_fl_scaler(self):
+        """Get the federated learning scaler"""
+        if not self._models_loaded:
+            self.load_models()
+        return self._fl_scaler
     
     def get_model_info(self, model_type: str) -> Dict[str, Any]:
         """

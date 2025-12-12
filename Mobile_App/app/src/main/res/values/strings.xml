@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
-    <string name="app_name">PositionDeterminer</string>
+    <string name="app_name">Position Determiner</string>
 
     
     <!-- Bottom Navigation -->
@@ -173,4 +173,17 @@
     <string name="classes_unit">classes</string>
     <string name="devices_unit">device(s)</string>
     <string name="active">ACTIVE</string>
+    
+    <!-- Full FL Flow -->
+    <string name="local_fl_prediction">Local FL Prediction</string>
+    <string name="full_fl_flow_with_metrics">Full FL Flow (With Metrics)</string>
+    <string name="full_fl">Full FL</string>
+    <string name="full_fl_flow_timing">⏱️ Full FL Flow Timing</string>
+    <string name="complete_fl_cycle_breakdown">Complete federated learning cycle breakdown</string>
+    <string name="prediction">Prediction</string>
+    <string name="gradients">Gradients</string>
+    <string name="api_send">API Send</string>
+    <string name="model_update">Model Update</string>
+    <string name="total_time">Total Time</string>
+    <string name="gradient_norm">Gradient Norm</string>
 </resources>

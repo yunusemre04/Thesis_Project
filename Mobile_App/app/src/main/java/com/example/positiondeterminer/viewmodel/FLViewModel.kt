@@ -8,6 +8,7 @@ import com.example.positiondeterminer.data.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.UUID
+import kotlin.math.sqrt
 
 sealed class FederatedLearningUiState {
     object Idle : FederatedLearningUiState()
@@ -21,7 +22,8 @@ sealed class FederatedLearningUiState {
         val apiMetrics: ApiMetrics?,
         val allProbabilities: Map<String, Double>,
         val showFeedback: Boolean = false,
-        val isOnDevice: Boolean = true // NEW: Flag for on-device inference
+        val isOnDevice: Boolean = true, // NEW: Flag for on-device inference
+        val fullFlowMetrics: FullFlowMetrics? = null // NEW: Full FL flow metrics
     ) : FederatedLearningUiState()
     object Training : FederatedLearningUiState()
     data class TrainingSuccess(val message: String) : FederatedLearningUiState()
@@ -38,7 +40,7 @@ class FederatedLearningViewModel(application: Application) : AndroidViewModel(ap
     val uiState: StateFlow<FederatedLearningUiState> = _uiState.asStateFlow()
     
     private val _modelInfo = MutableStateFlow<ModelInfoResponse?>(null)
-    val modelInfo: StateFlow<ModelInfoResponse?> = _modelInfo.asStateFlow()
+
     
     // Model status state
     private val _isModelReady = MutableStateFlow(false)
@@ -66,22 +68,14 @@ class FederatedLearningViewModel(application: Application) : AndroidViewModel(ap
             try {
                 Log.d("FLViewModel", "Initializing PyTorch model on startup...")
                 
-                // Check if model is ready (already in storage or can be loaded from assets)
-                val ready = pytorchFLService.isModelReady()
+                // Try to load model directly (loadModel will auto-copy from assets if needed)
+                val loaded = pytorchFLService.loadModel()
+                _isModelReady.value = loaded
                 
-                if (ready) {
-                    // Model exists, load it
-                    val loaded = pytorchFLService.loadModel()
-                    _isModelReady.value = loaded
-                    
-                    if (loaded) {
-                        Log.d("FLViewModel", "✅ PyTorch model loaded on startup")
-                    } else {
-                        Log.e("FLViewModel", "❌ Failed to load model on startup")
-                    }
+                if (loaded) {
+                    Log.d("FLViewModel", "✅ PyTorch model loaded on startup")
                 } else {
-                    Log.d("FLViewModel", "⚠️ Model not found - user needs to download")
-                    _isModelReady.value = false
+                    Log.e("FLViewModel", "❌ Failed to load model on startup")
                 }
             } catch (e: Exception) {
                 Log.e("FLViewModel", "Error during model initialization", e)
@@ -101,31 +95,12 @@ class FederatedLearningViewModel(application: Application) : AndroidViewModel(ap
                     }
                 }
             } catch (e: Exception) {
-                // Silently fail
+                Log.e("FLViewModel", "Error loading model info: ${e.message}")
             }
         }
     }
     
-    /**
-     * Check if PyTorch model already exists
-     */
-    private fun checkModelStatus() {
-        viewModelScope.launch {
-            try {
-                val ready = pytorchFLService.isModelReady()
-                _isModelReady.value = ready
-                
-                if (ready) {
-                    // Model exists, just load it
-                    pytorchFLService.loadModel()
-                    Log.d("FLViewModel", "PyTorch model already exists and loaded")
-                }
-            } catch (e: Exception) {
-                Log.e("FLViewModel", "Error checking model status", e)
-            }
-        }
-    }
-    
+
     /**
      * Download updated PyTorch model from server (manual update action)
      * This allows users to get the latest model version with federated improvements
@@ -166,41 +141,7 @@ class FederatedLearningViewModel(application: Application) : AndroidViewModel(ap
             }
         }
     }
-    
-    /**
-     * Initialize PyTorch model (check if exists, otherwise prompt user to download)
-     */
-    private fun initializeModel() {
-        viewModelScope.launch {
-            try {
-                _uiState.value = FederatedLearningUiState.InitializingModel
-                
-                if (!pytorchFLService.isModelReady()) {
-                    // Model not downloaded yet, download it
-                    Log.d("FLViewModel", "Downloading PyTorch model...")
-                    val downloaded = pytorchFLService.downloadModel()
-                    if (!downloaded) {
-                        Log.e("FLViewModel", "Failed to download PyTorch model")
-                        _uiState.value = FederatedLearningUiState.Error("Failed to download model")
-                        return@launch
-                    }
-                }
-                
-                // Load model into memory
-                Log.d("FLViewModel", "Loading PyTorch model...")
-                pytorchFLService.loadModel()
-                
-                // Model ready
-                _uiState.value = FederatedLearningUiState.Idle
-                Log.d("FLViewModel", "PyTorch model initialized successfully")
-                
-            } catch (e: Exception) {
-                Log.e("FLViewModel", "Model initialization failed", e)
-                _uiState.value = FederatedLearningUiState.Error("Model initialization failed: ${e.message}")
-            }
-        }
-    }
-    
+
     fun startPrediction() {
         viewModelScope.launch {
             try {
@@ -327,8 +268,7 @@ class FederatedLearningViewModel(application: Application) : AndroidViewModel(ap
                     _uiState.value = FederatedLearningUiState.TrainingSuccess(result.message)
                     Log.d("FLViewModel", "=== FL Update Complete ===")
                     
-                    // TODO: Download updated aggregated model from server
-                    // pytorchFLService.downloadModelFromServer()
+
                 } else {
                     Log.e("FLViewModel", "Server error: HTTP ${response.code()}")
                     _uiState.value = FederatedLearningUiState.Error("Training failed - Check internet connection")
@@ -354,5 +294,161 @@ class FederatedLearningViewModel(application: Application) : AndroidViewModel(ap
         _uiState.value = FederatedLearningUiState.Idle
         lastSensorData = null
         lastPredictionClass = null
+    }
+    
+    /**
+     * NEW: Full FL flow with complete metrics tracking
+     * Flow: Prediction -> Gradient Calc -> API Send -> Aggregation -> Model Update -> Complete
+     * Tracks both device metrics and API metrics throughout the entire flow
+     */
+    fun startFullFLFlow() {
+        viewModelScope.launch {
+            try {
+                if (!_isModelReady.value) {
+                    _uiState.value = FederatedLearningUiState.Error("Model not ready. Please download the model first.")
+                    return@launch
+                }
+                
+                Log.d("FLViewModel", "=== Starting Full FL Flow ===")
+                val flowStartTime = System.currentTimeMillis()
+                
+                _uiState.value = FederatedLearningUiState.Collecting
+                
+                // Capture initial metrics snapshot
+                val startSnapshot = metricsCollector.captureSnapshot()
+                
+                sensorCollector.collectSensorData()
+                    .take(1)
+                    .collect { readings ->
+                        // Step 1: Prediction
+                        _uiState.value = FederatedLearningUiState.Predicting
+                        val predictionStartTime = System.currentTimeMillis()
+                        
+                        val features = sensorCollector.processReadingsToFeatures(readings)
+                        lastSensorData = features
+                        
+                        // On-device inference
+                        val predictionResult = pytorchFLService.predict(features)
+                        val predictionTime = System.currentTimeMillis() - predictionStartTime
+                        Log.d("FLViewModel", "⏱️ Prediction time: ${predictionTime}ms")
+                        
+                        if (predictionResult == null) {
+                            _uiState.value = FederatedLearningUiState.Error("Prediction failed")
+                            return@collect
+                        }
+                        
+                        lastPredictionClass = predictionResult.classIndex
+                        
+                        // Step 2: Compute Gradients
+                        _uiState.value = FederatedLearningUiState.Training
+                        val gradientStartTime = System.currentTimeMillis()
+                        
+                        Log.d("FLViewModel", "Computing gradients for class ${predictionResult.classIndex} (${predictionResult.activity})...")
+                        val gradients = pytorchFLService.computeGradients(features, predictionResult.classIndex)
+                        val gradientTime = System.currentTimeMillis() - gradientStartTime
+                        Log.d("FLViewModel", "⏱️ Gradient computation time: ${gradientTime}ms")
+                        
+                        if (gradients == null) {
+                            _uiState.value = FederatedLearningUiState.Error("Gradient computation failed")
+                            return@collect
+                        }
+                        
+                        lastGradients = gradients
+                        val gradientNorm = sqrt(gradients.sumOf { it.toDouble() * it.toDouble() })
+                        Log.d("FLViewModel", "✅ Gradients computed: ${gradients.size} values, norm: $gradientNorm")
+                        
+                        // Step 3: Send to API and get aggregation metrics
+                        val apiSendStartTime = System.currentTimeMillis()
+                        val deviceId = "android_${System.currentTimeMillis()}"
+                        val request = FLGradientsRequest(
+                            gradients = gradients.toList(),
+                            activity_name = predictionResult.activity,
+                            device_id = deviceId
+                        )
+                        
+                        Log.d("FLViewModel", "Sending gradients to API for aggregation...")
+                        val response = ApiService.api.flUpdateWeightsWithGradients(request)
+                        val apiSendTime = System.currentTimeMillis() - apiSendStartTime
+                        Log.d("FLViewModel", "⏱️ API communication time: ${apiSendTime}ms")
+                        
+                        if (!response.isSuccessful || response.body() == null) {
+                            _uiState.value = FederatedLearningUiState.Error("API communication failed")
+                            return@collect
+                        }
+                        
+                        val result = response.body()!!
+                        val aggregationInfo = result.aggregation_info
+                        Log.d("FLViewModel", "✅ Server response: ${result.message}")
+                        Log.d("FLViewModel", "Aggregation info: $aggregationInfo")
+                        
+                        // Step 4: Download and apply updated model
+                        val modelUpdateStartTime = System.currentTimeMillis()
+                        Log.d("FLViewModel", "Downloading updated model from server...")
+                        
+                        val modelUpdated = pytorchFLService.downloadModelFromServer()
+                        if (modelUpdated) {
+                            pytorchFLService.loadModel()
+                            Log.d("FLViewModel", "✅ Model updated and reloaded")
+                        }
+                        
+                        val modelUpdateTime = System.currentTimeMillis() - modelUpdateStartTime
+                        Log.d("FLViewModel", "⏱️ Model update time: ${modelUpdateTime}ms")
+                        
+                        // Calculate total metrics
+                        val totalTime = System.currentTimeMillis() - flowStartTime
+                        val endSnapshot = metricsCollector.captureSnapshot()
+                        val deviceMetrics = metricsCollector.calculateMetrics(startSnapshot, endSnapshot)
+                        
+                        // Create comprehensive flow metrics
+                        val fullFlowMetrics = FullFlowMetrics(
+                            prediction_time_ms = predictionTime,
+                            gradient_calc_time_ms = gradientTime,
+                            api_send_time_ms = apiSendTime,
+                            api_aggregation_time_ms = 0, // Server doesn't report this yet
+                            model_update_time_ms = modelUpdateTime,
+                            total_time_ms = totalTime,
+                            gradient_norm = gradientNorm,
+                            aggregation_method = "federated_averaging"
+                        )
+                        
+                        Log.d("FLViewModel", "=== Full FL Flow Complete ===")
+                        Log.d("FLViewModel", "⏱️ Total time: ${totalTime}ms")
+                        Log.d("FLViewModel", "  - Prediction: ${predictionTime}ms")
+                        Log.d("FLViewModel", "  - Gradient calc: ${gradientTime}ms")
+                        Log.d("FLViewModel", "  - API send: ${apiSendTime}ms")
+                        Log.d("FLViewModel", "  - Model update: ${modelUpdateTime}ms")
+                        
+                        // Save to history with "Full FL" label
+                        storageService.saveResult(
+                            PredictionResult(
+                                id = UUID.randomUUID().toString(),
+                                activity = predictionResult.activity,
+                                confidence = predictionResult.confidence / 100.0,
+                                timestamp = System.currentTimeMillis(),
+                                type = "Full FL", // NEW: Different type for comparison
+                                deviceMetrics = deviceMetrics,
+                                apiMetrics = null,
+                                allProbabilities = predictionResult.allProbabilities,
+                                fullFlowMetrics = fullFlowMetrics
+                            )
+                        )
+                        
+                        // Show Success state with prediction details and metrics
+                        _uiState.value = FederatedLearningUiState.Success(
+                            prediction = predictionResult.activity,
+                            confidence = predictionResult.confidence / 100.0,
+                            deviceMetrics = deviceMetrics,
+                            apiMetrics = null,
+                            allProbabilities = predictionResult.allProbabilities,
+                            showFeedback = false, // Don't show feedback buttons for Full FL
+                            isOnDevice = true,
+                            fullFlowMetrics = fullFlowMetrics // Pass Full FL metrics
+                        )
+                    }
+            } catch (e: Exception) {
+                Log.e("FLViewModel", "Full FL flow error: ${e.message}", e)
+                _uiState.value = FederatedLearningUiState.Error("Full FL error: ${e.message}")
+            }
+        }
     }
 }

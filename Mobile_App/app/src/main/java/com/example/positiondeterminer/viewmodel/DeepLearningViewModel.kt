@@ -1,6 +1,7 @@
 package com.example.positiondeterminer.viewmodel
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.positiondeterminer.data.*
@@ -48,7 +49,7 @@ class DeepLearningViewModel(application: Application) : AndroidViewModel(applica
                     }
                 }
             } catch (e: Exception) {
-                // Silently fail, model info is optional
+               Log.e("DLViewModel", "Error loading model info: ${e.message}")
             }
         }
     }

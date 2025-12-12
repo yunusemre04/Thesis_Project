@@ -19,12 +19,7 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
-    
-    fun clearHistory() {
-        viewModelScope.launch {
-            storageService.clearHistory()
-        }
-    }
+
     
     fun clearHistoryByType(type: String) {
         viewModelScope.launch {

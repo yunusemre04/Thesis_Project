@@ -10,8 +10,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.DirectionsRun
+import androidx.compose.material.icons.automirrored.filled.Input
+import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
+import androidx.compose.material.icons.automirrored.filled.ShowChart
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
@@ -25,7 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+
 import com.example.positiondeterminer.R
 import com.example.positiondeterminer.data.ApiService
 import com.example.positiondeterminer.data.ModelInfoResponse
@@ -582,7 +588,7 @@ private fun ModelTabContent(
                 }
                 
                 modelInfo.input_shape?.let { inputShape ->
-                    ModernInfoRow(Icons.Default.Input, stringResource(R.string.input_shape), inputShape.joinToString(" × "), accentColor)
+                    ModernInfoRow(Icons.AutoMirrored.Filled.Input, stringResource(R.string.input_shape), inputShape.joinToString(" × "), accentColor)
                     Spacer(modifier = Modifier.height(12.dp))
                 }
                 
@@ -691,7 +697,7 @@ private fun ModelTabContent(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            Icons.Default.DirectionsRun,
+                            Icons.AutoMirrored.Filled.DirectionsRun,
                             contentDescription = null,
                             modifier = Modifier.size(24.dp),
                             tint = MaterialTheme.colorScheme.secondary
@@ -809,13 +815,14 @@ private fun AccuracyMetric(label: String, value: Double, color: Color) {
         }
         Spacer(modifier = Modifier.height(8.dp))
         LinearProgressIndicator(
-            progress = value.toFloat(),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(8.dp)
-                .clip(RoundedCornerShape(4.dp)),
-            color = color,
-            trackColor = color.copy(alpha = 0.2f)
+        progress = { value.toFloat() },
+        modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp)
+                        .clip(RoundedCornerShape(4.dp)),
+        color = color,
+        trackColor = color.copy(alpha = 0.2f),
+        strokeCap = ProgressIndicatorDefaults.LinearStrokeCap,
         )
     }
 }
@@ -853,13 +860,13 @@ private fun PyTorchModelTabContent(
                 
                 HorizontalDivider(color = accentColor.copy(alpha = 0.3f))
                 
-                ModernInfoRow(Icons.Default.InsertDriveFile, stringResource(R.string.file), pytorchInfo.file_name ?: "fl_model.pt", accentColor)
+                ModernInfoRow(Icons.AutoMirrored.Filled.InsertDriveFile, stringResource(R.string.file), pytorchInfo.file_name ?: "fl_model.pt", accentColor)
                 ModernInfoRow(Icons.Default.Storage, stringResource(R.string.size), "${pytorchInfo.file_size_mb ?: 0.0} MB", accentColor)
                 
                 pytorchInfo.architecture?.let { arch ->
-                    ModernInfoRow(Icons.Default.Input, stringResource(R.string.input), "${arch.input_size} ${stringResource(R.string.features_unit)}", accentColor)
+                    ModernInfoRow(Icons.AutoMirrored.Filled.Input, stringResource(R.string.input), "${arch.input_size} ${stringResource(R.string.features_unit)}", accentColor)
                     ModernInfoRow(Icons.Default.Output, stringResource(R.string.output), "${arch.output_classes} ${stringResource(R.string.classes_unit)}", accentColor)
-                    ModernInfoRow(Icons.Default.ShowChart, stringResource(R.string.activation), arch.activation ?: "ReLU", accentColor)
+                    ModernInfoRow(Icons.AutoMirrored.Filled.ShowChart, stringResource(R.string.activation), arch.activation ?: "ReLU", accentColor)
                     ModernInfoRow(Icons.Default.Numbers, stringResource(R.string.parameters), arch.total_parameters ?: "~500K", accentColor)
                 }
             }
@@ -990,7 +997,7 @@ private fun PyTorchModelTabContent(
                         if (fl.model_loaded) Color(0xFF4CAF50) else Color(0xFFF44336))
                     ModernInfoRow(Icons.Default.Replay, stringResource(R.string.current_round), "#${fl.current_round}", accentColor)
                     ModernInfoRow(Icons.Default.PendingActions, stringResource(R.string.pending_gradients), "${fl.pending_gradients} ${stringResource(R.string.devices_unit)}", accentColor)
-                    ModernInfoRow(Icons.Default.TrendingUp, stringResource(R.string.learning_rate), fl.learning_rate.toString(), accentColor)
+                    ModernInfoRow(Icons.AutoMirrored.Filled.TrendingUp, stringResource(R.string.learning_rate), fl.learning_rate.toString(), accentColor)
                     ModernInfoRow(Icons.Default.GroupWork, stringResource(R.string.aggregation), fl.aggregation_method ?: "FedAvg", accentColor)
                     
                     // Privacy Guarantees

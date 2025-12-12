@@ -35,8 +35,22 @@ class DeepLearningService:
             if not is_valid:
                 raise ValueError(error_msg)
             
-            # Preprocess data
-            processed_data = preprocess_data(sensor_data)
+            # Log raw input statistics
+            import numpy as np
+            sensor_array = np.array(sensor_data)
+            print(f"📥 DL Input: min={sensor_array.min():.4f}, max={sensor_array.max():.4f}, mean={sensor_array.mean():.4f}")
+            print(f"   First 10 features: {sensor_array[:10]}")
+            
+            # Get scaler for preprocessing
+            scaler = self.model_manager.get_dl_scaler()
+            if scaler is None:
+                print("⚠️  WARNING: DL Scaler is None!")
+            else:
+                print(f"✅ DL Scaler loaded (mean shape: {scaler.mean_.shape})")
+            
+            # Preprocess data with UCI HAR scaler
+            processed_data = preprocess_data(sensor_data, scaler=scaler)
+            print(f"📤 DL After preprocessing: min={processed_data.min():.4f}, max={processed_data.max():.4f}, mean={processed_data.mean():.4f}")
             
             # Validate shape
             if not validate_input_shape(processed_data, self.config['NUM_FEATURES']):

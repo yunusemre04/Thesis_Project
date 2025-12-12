@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -29,12 +30,13 @@ import com.example.positiondeterminer.data.ApiService
 import com.example.positiondeterminer.ui.utils.ActivityTranslator
 import com.example.positiondeterminer.viewmodel.FederatedLearningUiState
 import com.example.positiondeterminer.viewmodel.FederatedLearningViewModel
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FederatedLearningScreen(viewModel: FederatedLearningViewModel = viewModel()) {
     val uiState by viewModel.uiState.collectAsState()
-    val modelInfo by viewModel.modelInfo.collectAsState()
+
     val isModelReady by viewModel.isModelReady.collectAsState()
     val isDownloading by viewModel.isDownloading.collectAsState()
     var showActivityDialog by remember { mutableStateOf(false) }
@@ -81,14 +83,19 @@ fun FederatedLearningScreen(viewModel: FederatedLearningViewModel = viewModel())
                 )
             }
         ) { padding ->
-            Column(
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .padding(horizontal = 20.dp, vertical = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 20.dp, vertical = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
                 // Privacy info card with model status
                 ElevatedCard(
                     modifier = Modifier.fillMaxWidth(),
@@ -232,7 +239,10 @@ fun FederatedLearningScreen(viewModel: FederatedLearningViewModel = viewModel())
                     }
                 }
                 
-                Spacer(modifier = Modifier.weight(1f))
+                // Spacer to push content towards center for non-Success states
+                if (uiState !is FederatedLearningUiState.Success) {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
                 
                 // Main content
                 AnimatedContent(
@@ -251,7 +261,8 @@ fun FederatedLearningScreen(viewModel: FederatedLearningViewModel = viewModel())
                         is FederatedLearningUiState.Idle -> {
                             FLIdleState(
                                 isModelReady = isModelReady,
-                                onStartClick = { viewModel.startPrediction() }
+                                onStartClick = { viewModel.startPrediction() },
+                                onStartFullFlowClick = { viewModel.startFullFLFlow() }
                             )
                         }
                         
@@ -272,6 +283,7 @@ fun FederatedLearningScreen(viewModel: FederatedLearningViewModel = viewModel())
                                 allProbabilities = state.allProbabilities,
                                 showFeedback = state.showFeedback,
                                 isOnDevice = state.isOnDevice,
+                                fullFlowMetrics = state.fullFlowMetrics,
                                 onConfirm = { viewModel.confirmPrediction() },
                                 onCorrect = { showActivityDialog = true },
                                 onReset = { viewModel.reset() },
@@ -299,7 +311,11 @@ fun FederatedLearningScreen(viewModel: FederatedLearningViewModel = viewModel())
                     }
                 }
                 
-                Spacer(modifier = Modifier.weight(1f))
+                // Spacer to push content towards center for non-Success states
+                if (uiState !is FederatedLearningUiState.Success) {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+                }
             }
         }
     }
@@ -343,7 +359,7 @@ fun FederatedLearningScreen(viewModel: FederatedLearningViewModel = viewModel())
 }
 
 @Composable
-private fun FLIdleState(isModelReady: Boolean, onStartClick: () -> Unit) {
+private fun FLIdleState(isModelReady: Boolean, onStartClick: () -> Unit, onStartFullFlowClick: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(24.dp)
@@ -397,6 +413,7 @@ private fun FLIdleState(isModelReady: Boolean, onStartClick: () -> Unit) {
             textAlign = TextAlign.Center
         )
         
+        // Local FL button (existing)
         Button(
             onClick = onStartClick,
             enabled = isModelReady,
@@ -410,7 +427,22 @@ private fun FLIdleState(isModelReady: Boolean, onStartClick: () -> Unit) {
         ) {
             Icon(Icons.Default.PlayArrow, contentDescription = null)
             Spacer(modifier = Modifier.width(8.dp))
-            Text(stringResource(R.string.start_prediction), style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.local_fl_prediction), style = MaterialTheme.typography.titleMedium)
+        }
+        
+        // NEW: Full FL Flow button
+        OutlinedButton(
+            onClick = onStartFullFlowClick,
+            enabled = isModelReady,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.outlinedButtonColors()
+        ) {
+            Icon(Icons.Default.Sync, contentDescription = null)
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(stringResource(R.string.full_fl_flow_with_metrics), style = MaterialTheme.typography.titleMedium)
         }
     }
 }
@@ -459,6 +491,7 @@ private fun FLSuccessState(
     allProbabilities: Map<String, Double>,
     showFeedback: Boolean,
     isOnDevice: Boolean = true,
+    fullFlowMetrics: com.example.positiondeterminer.data.FullFlowMetrics? = null,
     onConfirm: () -> Unit,
     onCorrect: () -> Unit,
     onReset: () -> Unit,
@@ -467,8 +500,7 @@ private fun FLSuccessState(
     val context = LocalContext.current
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(20.dp),
-        modifier = Modifier.verticalScroll(rememberScrollState())
+        verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         ElevatedCard(
             modifier = Modifier.fillMaxWidth(),
@@ -541,7 +573,7 @@ private fun FLSuccessState(
                 FLMetricChip(
                     label = stringResource(R.string.confidence),
                     value = "${(confidence * 100).toInt()}%",
-                    icon = Icons.Default.TrendingUp,
+                    icon = Icons.AutoMirrored.Filled.TrendingUp,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -583,13 +615,13 @@ private fun FLSuccessState(
                 ) {
                     FLMetricChip(
                         label = stringResource(R.string.duration),
-                        value = String.format("%.2fs", deviceMetrics.duration_seconds),
+                        value = String.format(Locale.getDefault(),"%.2fs", deviceMetrics.duration_seconds),
                         icon = Icons.Default.Timer,
                         modifier = Modifier.weight(1f)
                     )
                     FLMetricChip(
                         label = stringResource(R.string.cpu),
-                        value = String.format("%.1f%%", deviceMetrics.cpu_usage_percent),
+                        value = String.format(Locale.getDefault(),"%.1f%%", deviceMetrics.cpu_usage_percent),
                         icon = Icons.Default.Memory,
                         modifier = Modifier.weight(1f)
                     )
@@ -603,7 +635,7 @@ private fun FLSuccessState(
                 ) {
                     FLMetricChip(
                         label = stringResource(R.string.ram),
-                        value = String.format("%.1f MB", deviceMetrics.ram_usage_mb),
+                        value = String.format(Locale.getDefault(),"%.1f MB", deviceMetrics.ram_usage_mb),
                         icon = Icons.Default.Storage,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -648,7 +680,7 @@ private fun FLSuccessState(
                     ) {
                         FLMetricChip(
                             label = stringResource(R.string.duration),
-                            value = String.format("%.2fs", metrics.duration_seconds),
+                            value = String.format(Locale.getDefault(),"%.2fs", metrics.duration_seconds),
                             icon = Icons.Default.Timer,
                             modifier = Modifier.weight(1f)
                         )
@@ -662,15 +694,105 @@ private fun FLSuccessState(
                     ) {
                         FLMetricChip(
                             label = stringResource(R.string.cpu),
-                            value = String.format("%.1f%%", metrics.cpu_usage_percent),
+                            value = String.format(Locale.getDefault(),"%.1f%%", metrics.cpu_usage_percent),
                             icon = Icons.Default.Memory,
                             modifier = Modifier.weight(1f)
                         )
                         FLMetricChip(
                             label = stringResource(R.string.ram),
-                            value = String.format("%.1f MB", metrics.ram_usage_mb),
+                            value = String.format(Locale.getDefault(),"%.1f MB", metrics.ram_usage_mb),
                             icon = Icons.Default.Storage,
                             modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            }
+        }
+        
+        // Full FL Flow Metrics Card
+        fullFlowMetrics?.let { metrics ->
+            ElevatedCard(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+                colors = CardDefaults.elevatedCardColors(
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.7f)
+                ),
+                shape = RoundedCornerShape(20.dp)
+            ) {
+                Column(modifier = Modifier.padding(20.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(
+                            Icons.Default.Speed,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            tint = MaterialTheme.colorScheme.tertiary
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = stringResource(R.string.full_fl_flow_timing),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        FLMetricChip(
+                            label = stringResource(R.string.prediction),
+                            value = "${metrics.prediction_time_ms}ms",
+                            icon = Icons.Default.Psychology,
+                            modifier = Modifier.weight(1f)
+                        )
+                        FLMetricChip(
+                            label = stringResource(R.string.gradients),
+                            value = "${metrics.gradient_calc_time_ms}ms",
+                            icon = Icons.Default.Calculate,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(12.dp))
+                    
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        FLMetricChip(
+                            label = stringResource(R.string.api_send),
+                            value = "${metrics.api_send_time_ms}ms",
+                            icon = Icons.Default.CloudUpload,
+                            modifier = Modifier.weight(1f)
+                        )
+                        FLMetricChip(
+                            label = stringResource(R.string.model_update),
+                            value = "${metrics.model_update_time_ms}ms",
+                            icon = Icons.Default.Update,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(12.dp))
+                    
+                    FLMetricChip(
+                        label = stringResource(R.string.total_time),
+                        value = "${metrics.total_time_ms}ms",
+                        icon = Icons.Default.Timer,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    
+                    metrics.gradient_norm?.let { norm ->
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "${stringResource(R.string.gradient_norm)}: ${String.format(Locale.getDefault(),"%.4f", norm)}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.7f)
                         )
                     }
                 }
@@ -966,7 +1088,7 @@ private fun FLProbabilityBar(
                 )
             }
             Text(
-                text = String.format("%.1f%%", probability),
+                text = String.format(Locale.getDefault(),"%.1f%%", probability),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold,
                 color = barColor
