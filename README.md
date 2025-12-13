@@ -1,6 +1,6 @@
-# Human Activity Recognition with Federated Learning
+# Human Activity Recognition System
 
-A mobile-first human activity recognition system implementing both **Federated Learning** and **Deep Learning** approaches for privacy-preserving on-device inference and model training.
+A mobile human activity recognition system implementing both **Federated Learning** and **Deep Learning** approaches for privacy-preserving on-device inference and model training.
 
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9+-purple.svg)](https://kotlinlang.org/)
