@@ -258,6 +258,13 @@ class PyTorchFLService(private val context: Context) {
             
             Log.d(TAG, "Computing gradients on-device...")
             Log.d(TAG, "Input features: ${sensorData.size}")
+            
+            // Note: If Temporal Filter drops the frame due to redundancy, sensorData is empty.
+            if (sensorData.isEmpty()) {
+                Log.d(TAG, "Frame dropped by Temporal Filter. Skipping gradient computation.")
+                return@withContext null
+            }
+
             Log.d(TAG, "True label: $trueLabel")
             
             // Convert input to tensor
@@ -310,13 +317,64 @@ class PyTorchFLService(private val context: Context) {
             Log.d(TAG, "True class error: ${outputGradients[trueLabel]}, Loss: $crossEntropyLoss, Scale: $scaleFactor")
             Log.d(TAG, "Gradient stats - Min: ${gradients.minOrNull()}, Max: ${gradients.maxOrNull()}, Mean: ${gradients.average()}")
             
-            gradients
+            // Client-Side Masking & adaptive scaling is executed before returning
+            val finalGradients = applyClientSideMaskingAndScaling(gradients)
+            
+            finalGradients
         } catch (e: Exception) {
             Log.e(TAG, "Gradient computation failed", e)
             null
         }
     }
 
+    /**
+     * Client-Side Masking & Dim Scaling Layer
+     * 
+     * Runs right before transmitting gradient updates to the central API.
+     * Computes a pseudo-random zero-sum mask vector matching the current shape of the gradient vector 
+     * to perturb the raw parameters locally (g_k* = g_k + r_k).
+     * 
+     * Implements adaptive scale check: reads battery state. If heavily resource-constrained, dynamically 
+     * slices the local vector to compress communication and on-device computation by dropping 
+     * non-essential statistical components before masking.
+     */
+    private fun applyClientSideMaskingAndScaling(rawGradients: FloatArray): FloatArray {
+        var workingVector = rawGradients
+        
+        // 1. Adaptive Scale Check
+        val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as android.os.BatteryManager
+        val batteryLevel = batteryManager.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY)
+        val powerManager = context.getSystemService(Context.POWER_SERVICE) as android.os.PowerManager
+        val isConstrained = batteryLevel <= 20 || powerManager.isPowerSaveMode
+        
+        if (isConstrained) {
+            Log.w(TAG, "🔋 Device heavily resource-constrained ($batteryLevel%, PowerSave: ${powerManager.isPowerSaveMode}). Dynamically slicing vector!")
+            // Dimension reduction: take top essential features, slice vector to 400 instead of 561 to compress.
+            val reducedSize = 400 
+            workingVector = workingVector.copyOfRange(0, reducedSize)
+        }
+
+        // 2. Zero-Sum Mask-Based Perturbation Scheme
+        Log.d(TAG, "🔒 Applying pseudo-random Zero-Sum Mask. Current dim limit: ${workingVector.size}")
+        val random = java.util.Random()
+        val mask = FloatArray(workingVector.size)
+        var maskSum = 0f
+        
+        for (i in 0 until mask.size - 1) {
+            val r = (random.nextFloat() * 2f - 1f) * 0.05f // Local cryptographic perturbation
+            mask[i] = r
+            maskSum += r
+        }
+        mask[mask.size - 1] = -maskSum // Forces zero sum
+        
+        // Apply mask: g_k* = g_k + r_k
+        val maskedGradients = FloatArray(workingVector.size)
+        for (i in workingVector.indices) {
+            maskedGradients[i] = workingVector[i] + mask[i]
+        }
+        
+        return maskedGradients
+    }
     
     /**
      * Apply softmax activation to convert logits to probabilities

@@ -82,15 +82,38 @@ class SensorDataCollector(context: Context) {
     }
     
     /**
+     * Temporal Similarity-Based Data Filter Component:
+     * Stores the previous sliding window's extracted feature vector.
+     */
+    private var previousFeatures: DoubleArray? = null
+
+    /**
+     * Computes the Cosine Similarity between two feature vectors to detect redundant sedentary states.
+     */
+    private fun computeCosineSimilarity(v1: DoubleArray, v2: DoubleArray): Double {
+        if (v1.isEmpty() || v2.isEmpty() || v1.size != v2.size) return 0.0
+        var dotProduct = 0.0
+        var normA = 0.0
+        var normB = 0.0
+        for (i in v1.indices) {
+            dotProduct += v1[i] * v2[i]
+            normA += v1[i] * v1[i]
+            normB += v2[i] * v2[i]
+        }
+        if (normA == 0.0 || normB == 0.0) return 0.0
+        return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB))
+    }
+
+    /**
      * Process sensor readings into the format expected by the ML model
-     * Returns a flat array of 561 UCI HAR compatible features
+     * Returns a flat array of 561 UCI HAR compatible features or an empty list if data is dropped.
      */
     fun processReadingsToFeatures(readings: List<SensorReading>): List<Double> {
         android.util.Log.d("SensorDataCollector", "🔄 Processing ${readings.size} readings to features")
         
         if (readings.isEmpty()) {
             android.util.Log.w("SensorDataCollector", "⚠️ No readings to process!")
-            return List(561) { 0.0 }
+            return emptyList()
         }
         
         // Log sample of readings
@@ -104,6 +127,24 @@ class SensorDataCollector(context: Context) {
         // Use proper UCI HAR feature extraction
         val extractor = FeatureExtractor()
         val features = extractor.extractFeatures(readings)
+        
+        // --- Temporal Similarity-Based Data Filter ---
+        // Compute Cosine Similarity between current feature vector (v_t) and previous (v_t-1)
+        val currentFeaturesArray = features.toDoubleArray()
+        previousFeatures?.let { prev ->
+            val similarity = computeCosineSimilarity(currentFeaturesArray, prev)
+            
+            // If similarity > 0.98, the frame is extremely redundant (e.g., prolonged sedentary state like sitting/laying).
+            // We immediately drop the frame from the local training buffer by returning empty, 
+            // slashing local training computational overhead and drastically saving battery.
+            if (similarity > 0.98) {
+                android.util.Log.d("SensorDataCollector", "🛑 TEMPORAL FILTER: Dropping redundant frame! Cosine Similarity: $similarity > 0.98")
+                return emptyList()
+            }
+        }
+        
+        // Update previous features buffer for next comparison window
+        previousFeatures = currentFeaturesArray
         
         android.util.Log.d("SensorDataCollector", "✅ Generated ${features.size} features")
         return features

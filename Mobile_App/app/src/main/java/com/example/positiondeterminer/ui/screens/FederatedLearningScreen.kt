@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.positiondeterminer.R
 import com.example.positiondeterminer.data.ApiService
@@ -56,7 +57,7 @@ fun FederatedLearningScreen(viewModel: FederatedLearningViewModel = viewModel())
                     )
                 )
         )
-        
+
         Scaffold(
             containerColor = Color.Transparent,
             topBar = {
@@ -75,6 +76,7 @@ fun FederatedLearningScreen(viewModel: FederatedLearningViewModel = viewModel())
                                 style = MaterialTheme.typography.headlineSmall,
                                 fontWeight = FontWeight.Bold
                             )
+
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -83,11 +85,13 @@ fun FederatedLearningScreen(viewModel: FederatedLearningViewModel = viewModel())
                 )
             }
         ) { padding ->
+
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
             ) {
+
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -96,6 +100,7 @@ fun FederatedLearningScreen(viewModel: FederatedLearningViewModel = viewModel())
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
+
                 // Privacy info card with model status
                 ElevatedCard(
                     modifier = Modifier.fillMaxWidth(),
@@ -238,7 +243,61 @@ fun FederatedLearningScreen(viewModel: FederatedLearningViewModel = viewModel())
                         }
                     }
                 }
-                
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 1.dp, vertical = 8.dp),
+                        colors = CardDefaults.cardColors(
+                            // Makalendeki tasarruf (yeşil) vurgusuna uygun bir ton
+                            containerColor = Color(0xFF1B5E20).copy(alpha = 0.9f)
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "HAR-Adaptive Result",
+                                    color = Color.White.copy(alpha = 0.7f),
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "Daily Savings: 11.20 kWh", // Makale Tablo I verisi
+                                    color = Color.White,
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.ExtraBold
+                                )
+                                Text(
+                                    text = "Efficiency: 23.73% Reduction", // Makale verisi
+                                    color = Color(0xFF81C784), // Açık yeşil vurgu
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+
+                            // Aktif katsayıyı gösteren küçük bir rozet
+                            Surface(
+                                color = Color.Black.copy(alpha = 0.3f),
+                                shape = ShapeDefaults.Small,
+                                modifier = Modifier.padding(start = 8.dp)
+                            ) {
+                                Text(
+                                    text = "α = 0.6", // Sitting/Eco katsayısı
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                    color = Color.White,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
                 // Spacer to push content towards center for non-Success states
                 if (uiState !is FederatedLearningUiState.Success) {
                     Spacer(modifier = Modifier.weight(1f))
